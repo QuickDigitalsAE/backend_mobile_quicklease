@@ -1197,6 +1197,7 @@ class BookingController extends Controller
                 'table_name'=> 'bookings',
                 'action' => 'updated',
                 'changes' => $changes,
+                'language' => $lang ?? 'en',
             ]);
             
             // Insert into BookingNotification table

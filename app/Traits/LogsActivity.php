@@ -7,6 +7,13 @@ use Illuminate\Support\Facades\Auth;
 
 trait LogsActivity
 {
+    protected static function resolveActivityLanguage(): string
+    {
+        return request()->route('lang')
+            ?? request()->input('language')
+            ?? 'en';
+    }
+
     public static function bootLogsActivity()
     {
         static::updating(function ($model) {
@@ -39,6 +46,7 @@ trait LogsActivity
                     'table_name'=> $table_name,
                     'action' => 'updated',
                     'changes' => $changes,
+                    'language' => static::resolveActivityLanguage(),
                 ]);
             }
         });
@@ -50,7 +58,8 @@ trait LogsActivity
                 'model_type' => get_class($model),
                 'table_name'=> $model->getTable(),
                 'action' => 'created',
-                'changes' => $model->getAttributes()
+                'changes' => $model->getAttributes(),
+                'language' => static::resolveActivityLanguage(),
             ]);
         });
 
@@ -62,6 +71,7 @@ trait LogsActivity
                 'table_name'=> $model->getTable(),
                 'action' => 'deleted',
                 'changes' => $model->getOriginal(),
+                'language' => static::resolveActivityLanguage(),
             ]);
         });
     }

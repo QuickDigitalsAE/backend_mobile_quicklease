@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('table_name')->nullable();
             $table->json('changes')->nullable(); // old and new values
             $table->string('action')->nullable(); // updated, created, deleted
-            $table->string('language');
+            $table->string('language', 10)->default('en');
             $table->timestamps();
         });
     }

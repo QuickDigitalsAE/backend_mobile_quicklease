@@ -67,7 +67,8 @@ class UserController extends Controller
                 'user_id' => $user->id,
                 'user_name' => $user->name,
                 'model_type' => User::class,
-                'action' => 'login'
+                'action' => 'login',
+                'language' => $request->route('lang') ?? $request->input('language') ?? 'en',
             ]);
 
             return response()->json([
@@ -237,7 +238,8 @@ class UserController extends Controller
             'user_id' => $user->id,
             'user_name' => $user->name,
             'model_type' => User::class,
-            'action' => 'logout'
+            'action' => 'logout',
+            'language' => $request->route('lang') ?? $request->input('language') ?? 'en',
         ]);
     
         // Revoke the token that was used to authenticate the current request
