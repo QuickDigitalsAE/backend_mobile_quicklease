@@ -1,34 +1,35 @@
-name: Deploy Laravel to DigitalOceans
+name: Deploy Laravel to DigitalOcean
 
 on:
   push:
     branches:
-      - main  # Or master
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Deploy to DigitalOcean via SSH
-        uses: appleboy/ssh-action@master
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.DO_HOST }}
           username: ${{ secrets.DO_USER }}
           key: ${{ secrets.DO_SSH_KEY }}
-          port: 22
           script: |
-              cd /var/www/mobile-backend
-              git reset --hard origin/main
-              git clean -fd
-              git pull origin main
-              php artisan route:cache
-              php artisan view:clear
-              php artisan config:clear
-              php artisan cache:clear
-              php artisan config:cache
-              php artisan view:cache
+            cd /var/www/mobile-backend
 
+            if [ ! -d ".git" ]; then
+              git clone https://github.com/QuickDigitalsAE/backend_mobile_quicklease.git .
+            else
+              git pull origin main
+            fi
+
+            composer install --no-dev --optimize-autoloader
+
+            cp .env.example .env || true
+
+            chown -R www-data:www-data storage bootstrap/cache
+            chmod -R 775 storage bootstrap/cache
+
+            systemctl reload nginx
