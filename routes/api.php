@@ -18,7 +18,7 @@ use App\Http\Controllers\ApisFiles\TestimonialController;
 use App\Http\Controllers\ApisFiles\EnquiryController;
 use App\Http\Controllers\ApisFiles\RequestFormController;
 use App\Http\Controllers\ApisFiles\CatalogController;
-use App\Http\Controllers\ApisFiles\UploadImageController;
+use App\Http\Controllers\ApisFiles\UploadFileController;
 use App\Http\Controllers\ApisFiles\OurLocationsController;
 use App\Http\Controllers\ApisFiles\ProductsController;
 use App\Http\Controllers\ApisFiles\ProductCoveragesController;
@@ -29,6 +29,7 @@ use App\Http\Controllers\ApisFiles\UserActivityLogController;
 use App\Http\Controllers\ApisFiles\CustomerAuthController;
 use App\Http\Controllers\ApisFiles\NotificationController;
 use App\Http\Controllers\ApisFiles\SettingController;
+use App\Http\Controllers\ApisFiles\UserDocumentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -216,7 +217,7 @@ Route::group(['prefix' => 'quicklease', 'middleware' => 'validateLang'], functio
 Route::post('/contact-us-form', [EnquiryController::class, 'contactusForm']);
 
 // Upload Image Section
-Route::post('/innerPages/uploadImage/', [UploadImageController::class, 'uploadSingleImage']);
+Route::post('/innerPages/uploadImage/', [UploadFileController::class, 'uploadSingleImage']);
 
 // Frontend lease a review form post
 Route::post('/testimonials/leave_review/{lang?}', [TestimonialController::class, 'storeFrontendTestimonial']);
@@ -280,6 +281,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // User Logout
     Route::post('logout', [UserController::class, 'logout']);
+
+    Route::prefix('user-documents')->group(function () {
+        Route::get('/', [UserDocumentController::class, 'adminIndex']);
+        Route::post('/', [UserDocumentController::class, 'adminStore']);
+        Route::get('/{id}', [UserDocumentController::class, 'adminShow']);
+        Route::post('/{id}', [UserDocumentController::class, 'adminUpdate']);
+        Route::delete('/{id}', [UserDocumentController::class, 'adminDelete']);
+    });
     
     // Define a route to roles
     Route::group(['prefix' => 'roles'], function() {  
@@ -550,6 +559,14 @@ Route::group(['prefix' => 'mobile'], function () {
             // Frontend lease a review form post
             Route::post('/leave_review/{lang?}', [TestimonialController::class, 'storeFrontendTestimonial']);
             Route::get('/reviews/{lang?}/{per_page_count?}', [TestimonialController::class,'frontendTestimonialsList']);
+
+            Route::prefix('documents')->group(function () {
+                Route::get('/', [UserDocumentController::class, 'mobileIndex']);
+                Route::post('/', [UserDocumentController::class, 'mobileStore']);
+                Route::get('/{id}', [UserDocumentController::class, 'mobileShow']);
+                Route::post('/{id}', [UserDocumentController::class, 'mobileUpdate']);
+                Route::delete('/{id}', [UserDocumentController::class, 'mobileDelete']);
+            });
         });
     
     });
