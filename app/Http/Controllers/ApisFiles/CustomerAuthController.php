@@ -209,12 +209,16 @@ class CustomerAuthController extends Controller
 
     public function register(Request $request)
     {
+        $passwordRule = $request->filled('password')
+            ? 'string|min:6|confirmed'
+            : 'sometimes|nullable';
+
         // Validate the request
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
             'email' => 'required|string|email|unique:customers',
             'phone'     => 'nullable|string',
-            'password' => 'nullable|string|min:6|confirmed',
+            'password' => $passwordRule,
             'profile_image' => 'nullable|string',
         ]);
 
