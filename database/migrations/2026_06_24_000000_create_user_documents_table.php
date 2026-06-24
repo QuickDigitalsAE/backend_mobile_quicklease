@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('user_documents', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('customer_id')->constrained('customers')->cascadeOnDelete();
             $table->string('title');
             $table->tinyInteger('status')->default(1)->comment('1 active, 0 inactive');
             $table->date('expiry_date')->nullable();
