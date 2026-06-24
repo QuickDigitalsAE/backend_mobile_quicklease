@@ -154,7 +154,7 @@ class CustomerAuthController extends Controller
                         ->subject('Login OTP');
                 });
             } catch (\Throwable $e) {
-                \Log::error('Customer OTP mail failed', [
+                \Log::error('Customer OTP mail failed!', [
                     'email' => $request->email,
                     'error' => $e->getMessage(),
                 ]);
