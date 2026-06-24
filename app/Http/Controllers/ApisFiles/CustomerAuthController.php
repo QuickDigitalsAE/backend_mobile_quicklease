@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class CustomerAuthController extends Controller
@@ -213,7 +214,7 @@ class CustomerAuthController extends Controller
             'name' => 'required|string',
             'email' => 'required|string|email|unique:customers',
             'phone'     => 'nullable|string',
-            'password' => 'required|confirmed', // Ensure password confirmation
+            'password' => 'nullable|string|min:6|confirmed',
             'profile_image' => 'nullable|string',
         ]);
 
@@ -230,13 +231,21 @@ class CustomerAuthController extends Controller
         if (!empty($request->profile_image)) {
             $profile_image = $request->profile_image;
         }
+
+        $isPasswordGenerated = false;
+        $plainPassword = $request->password;
+
+        if (blank($plainPassword)) {
+            $plainPassword = Str::random(12);
+            $isPasswordGenerated = true;
+        }
       
         // Create the Customer
         $customer = Customer::create([
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
-            'password' => Hash::make($request->password), 
+            'password' => Hash::make($plainPassword),
             'profile_image' => $profile_image
         ]);
 
@@ -252,7 +261,9 @@ class CustomerAuthController extends Controller
                 'name'  => $customer->name,
                 'email' => $customer->email,
                 'phone' => $customer->phone,
-                'api_token' => $token
+                'api_token' => $token,
+                'password_generated' => $isPasswordGenerated,
+                'generated_password' => $isPasswordGenerated ? $plainPassword : null
             ],
         ], 200); // HTTP 201 Created
     }
