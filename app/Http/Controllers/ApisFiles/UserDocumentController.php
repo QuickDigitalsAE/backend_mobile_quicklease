@@ -332,7 +332,7 @@ class UserDocumentController extends Controller
             'title' => $isUpdate ? 'sometimes|required|string|max:255' : 'required|string|max:255',
             'status' => 'nullable|boolean',
             'expiry_date' => 'nullable|date',
-            'attachment' => 'nullable|url|max:2048',
+            'attachment' => 'nullable|string',
             'comment' => 'nullable|string',
             'type' => $isUpdate ? 'sometimes|required|string|max:255' : 'required|string|max:255',
         ];
