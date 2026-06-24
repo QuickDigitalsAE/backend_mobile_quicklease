@@ -13,7 +13,7 @@ class UserDocument extends Model
     protected $table = 'user_documents';
 
     protected $fillable = [
-        'user_id',
+        'customer_id',
         'title',
         'status',
         'expiry_date',
@@ -23,7 +23,7 @@ class UserDocument extends Model
     ];
 
     protected $casts = [
-        'user_id' => 'integer',
+        'customer_id' => 'integer',
         'status' => 'integer',
         'expiry_date' => 'date:Y-m-d',
     ];

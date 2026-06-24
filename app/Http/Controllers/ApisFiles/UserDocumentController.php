@@ -25,7 +25,7 @@ class UserDocumentController extends Controller
         }
 
         return $this->listDocuments(
-            UserDocument::with('user:id,name,email,phone')->where('user_id', $user->id),
+            UserDocument::with('user:id,name,email,phone')->where('customer_id', $user->id),
             $request,
             true
         );
@@ -54,7 +54,7 @@ class UserDocumentController extends Controller
         }
 
         $document = UserDocument::create([
-            'user_id' => $user->id,
+            'customer_id' => $user->id,
             'title' => $request->title,
             'status' => $request->has('status') ? (int) $request->boolean('status') : 1,
             'expiry_date' => $request->expiry_date,
@@ -83,7 +83,7 @@ class UserDocumentController extends Controller
         }
 
         $document = UserDocument::with('user:id,name,email,phone')
-            ->where('user_id', $user->id)
+            ->where('customer_id', $user->id)
             ->find($id);
 
         if (!$document) {
@@ -113,7 +113,7 @@ class UserDocumentController extends Controller
             ], 200);
         }
 
-        $document = UserDocument::where('user_id', $user->id)->find($id);
+        $document = UserDocument::where('customer_id', $user->id)->find($id);
 
         if (!$document) {
             return response()->json([
@@ -162,7 +162,7 @@ class UserDocumentController extends Controller
             ], 200);
         }
 
-        $document = UserDocument::where('user_id', $user->id)->find($id);
+        $document = UserDocument::where('customer_id', $user->id)->find($id);
 
         if (!$document) {
             return response()->json([
@@ -185,8 +185,8 @@ class UserDocumentController extends Controller
     {
         $query = UserDocument::with('user:id,name,email,phone')->orderBy('created_at', 'DESC');
 
-        if ($request->filled('user_id')) {
-            $query->where('user_id', $request->user_id);
+        if ($request->filled('customer_id')) {
+            $query->where('customer_id', $request->customer_id);
         }
 
         if ($request->filled('status')) {
@@ -217,7 +217,7 @@ class UserDocumentController extends Controller
         }
 
         $document = UserDocument::create([
-            'user_id' => $request->user_id,
+            'customer_id' => $request->customer_id,
             'title' => $request->title,
             'status' => $request->has('status') ? (int) $request->boolean('status') : 1,
             'expiry_date' => $request->expiry_date,
@@ -274,8 +274,8 @@ class UserDocumentController extends Controller
             ], 200);
         }
 
-        if ($request->has('user_id')) {
-            $document->user_id = $request->user_id;
+        if ($request->has('customer_id')) {
+            $document->customer_id = $request->customer_id;
         }
         if ($request->has('title')) {
             $document->title = $request->title;
@@ -338,7 +338,7 @@ class UserDocumentController extends Controller
         ];
 
         if ($isAdmin) {
-            $rules['user_id'] = $isUpdate ? 'sometimes|required|exists:users,id' : 'required|exists:users,id';
+            $rules['customer_id'] = $isUpdate ? 'sometimes|required|exists:users,id' : 'required|exists:users,id';
         }
 
         return $rules;
@@ -384,7 +384,7 @@ class UserDocumentController extends Controller
 
         $data = [
             'id' => $document->id,
-            'user_id' => $document->user_id,
+            'customer_id' => $document->customer_id,
             'title' => $document->title,
             'status' => (int) $document->status,
             'expiry_date' => $document->expiry_date ? $document->expiry_date->format('Y-m-d') : null,
