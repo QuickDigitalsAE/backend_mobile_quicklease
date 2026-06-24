@@ -35,7 +35,7 @@ class CustomerAuthController extends Controller
     
         $input = $request->email_or_phone;
     
-        // Find customer by email OR phone
+        // Find customer by email OR phone2
         $customer = Customer::where('email', $input)
                             ->orWhere('phone', $input)
                             ->first();
