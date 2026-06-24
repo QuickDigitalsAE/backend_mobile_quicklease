@@ -148,10 +148,23 @@ class CustomerAuthController extends Controller
                 'expires_at' => Carbon::now()->addMinutes(5)
             ]);
 
-            Mail::raw("Your login OTP is: $otp", function ($message) use ($request) {
-                $message->to($request->email)
+            try {
+                Mail::raw("Your login OTP is: $otp", function ($message) use ($request) {
+                    $message->to($request->email)
                         ->subject('Login OTP');
-            });
+                });
+            } catch (\Throwable $e) {
+                \Log::error('Customer OTP mail failed', [
+                    'email' => $request->email,
+                    'error' => $e->getMessage(),
+                ]);
+
+                return response()->json([
+                    'status' => false,
+                    'message' => 'OTP generated, but email could not be sent right now.',
+                    'data' => null
+                ], 500);
+            }
 
             return response()->json([
                 'status' => true,

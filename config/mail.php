@@ -34,16 +34,28 @@ return [
     'mailers' => [
         'main' => [
             'transport' => 'smtp',
-            'host' => 'smtp.office365.com',
+            'host' => 'smtp-relay.brevo.com',
             'port' => 587,
-            'encryption' => 'ssl',
-            'username' => 'bookings@quicklease.ae',
-            'password' => 'Foy916811',
+            'encryption' => 'tls',
+            'username' => 'aa2132001@smtp-brevo.com',
+            'password' => env('MAIL_PASSWORD'),
             'from' => [
-                'address' => 'bookings@quicklease.ae',
+                'address' => 'ahmedansariqds@gmail.com',
                 'name' => 'Quicklease',
             ],
-            'admin_address' => 'bookings@quicklease.ae',
+            'admin_address' => 'ahmedansariqds@gmail.com',
+        ],
+
+        'smtp' => [
+            'transport' => 'smtp',
+            'scheme' => env('MAIL_SCHEME'),
+            'url' => env('MAIL_URL'),
+            'host' => env('MAIL_HOST', '127.0.0.1'),
+            'port' => env('MAIL_PORT', 2525),
+            'username' => env('MAIL_USERNAME'),
+            'password' => env('MAIL_PASSWORD'),
+            'timeout' => null,
+            'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         ],
 
         'landing' => [
