@@ -17,21 +17,21 @@ class PaymentController extends Controller
 {
     public function executeEtisalatPayment(Request $request, $lang)
     {
-        // $ETISALAT_CUSTOMER = 'Demo Merchant';
-        // $ETISALAT_USER = 'Demo_fY9c';
-        // $ETISALAT_PASS = 'Comtrust@20182018';
-        // $ETISALAT_API_URL = 'https://demo-ipg.ctdev.comtrust.ae:2443';
-        // $ETISALAT_RETURN_PATH = 'https://mobile-api.quicklease.ae/epg-redirect';
+        $ETISALAT_CUSTOMER = 'Demo Merchant';
+        $ETISALAT_USER = 'Demo_fY9c';
+        $ETISALAT_PASS = 'Comtrust@20182018';
+        $ETISALAT_API_URL = 'https://demo-ipg.ctdev.comtrust.ae:2443';
+        $ETISALAT_RETURN_PATH = 'https://mobile-api.quicklease.ae/epg-redirect';
         
         $caBundlePath = storage_path('certs/ipg-ca-bundle.pem');
         
-        $ETISALAT_CUSTOMER = config('app.etisalat_customer');
-        $ETISALAT_USER = config('app.etisalat_user');
-        $ETISALAT_PASS = config('app.etisalat_pass');
-        $ETISALAT_API_URL = config('app.etisalat_api_url');
+        // $ETISALAT_CUSTOMER = config('app.etisalat_customer');
+        // $ETISALAT_USER = config('app.etisalat_user');
+        // $ETISALAT_PASS = config('app.etisalat_pass');
+        // $ETISALAT_API_URL = config('app.etisalat_api_url');
         $ETISALAT_STORE = 'eCommerce';
         $ETISALAT_TERMINAL = 'eCommerce';
-        $ETISALAT_RETURN_PATH = 'https://mobile-api.quicklease.ae/epg-redirect';
+        // $ETISALAT_RETURN_PATH = 'https://mobile-api.quicklease.ae/epg-redirect';
         
         $amount = $request->input('amount');
         $order_number = $request->input('order_number');
