@@ -20,18 +20,21 @@ class PaymentController extends Controller
         $ETISALAT_CUSTOMER = 'Demo Merchant';
         $ETISALAT_USER = 'Demo_fY9c';
         $ETISALAT_PASS = 'Comtrust@20182018';
+        $ETISALAT_STORE = '0000';
+        $ETISALAT_TERMINAL = '0000';
         $ETISALAT_API_URL = 'https://demo-ipg.ctdev.comtrust.ae:2443';
-        $ETISALAT_RETURN_PATH = 'https://mobile-api.quicklease.ae/epg-redirect';
+        $ETISALAT_RETURN_PATH = 'https://testqds.com/new_quicklease/epg-redirect';
         
         $caBundlePath = storage_path('certs/ipg-ca-bundle.pem');
+        
         
         // $ETISALAT_CUSTOMER = config('app.etisalat_customer');
         // $ETISALAT_USER = config('app.etisalat_user');
         // $ETISALAT_PASS = config('app.etisalat_pass');
         // $ETISALAT_API_URL = config('app.etisalat_api_url');
-        $ETISALAT_STORE = 'eCommerce';
-        $ETISALAT_TERMINAL = 'eCommerce';
-        // $ETISALAT_RETURN_PATH = 'https://mobile-api.quicklease.ae/epg-redirect';
+        // $ETISALAT_STORE = 'eCommerce';
+        // $ETISALAT_TERMINAL = 'eCommerce';
+        // $ETISALAT_RETURN_PATH = 'https://api.quicklease.ae/epg-redirect';
         
         $amount = $request->input('amount');
         $order_number = $request->input('order_number');
@@ -55,7 +58,7 @@ class PaymentController extends Controller
                 "Password" => $ETISALAT_PASS
             ]
         ];
-    
+
         try {
             $client = new Client();
             
@@ -76,7 +79,10 @@ class PaymentController extends Controller
             ]);
             
             $result = json_decode($response->getBody(), true);
-
+            // echo "<pre>";
+            // print_r($result);
+            // echo "</pre>";
+            // die();
             if (!empty($booking_id) && isset($result['Transaction']) && !empty($result['Transaction']['TransactionID'])) {
                 $transactionId = $result['Transaction']['TransactionID'] ?? null;
                 
