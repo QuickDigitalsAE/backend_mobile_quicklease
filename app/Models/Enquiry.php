@@ -27,6 +27,8 @@ class Enquiry extends Model
         "form_status",
         "period",
         "lease_to_own",
+        "show_lease",
+        "km",
         "client_comments",
         "language"
     ];

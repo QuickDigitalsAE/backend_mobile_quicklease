@@ -81,6 +81,8 @@ class EnquiryController extends Controller
                     'car_name' => $enquiry->car_name,
                     'period' => $enquiry->period,
                     'lease_to_own' => $enquiry->lease_to_own,
+                    'show_lease' => $enquiry->show_lease,
+                    'km' => $enquiry->km,
                     'client_comments' => $enquiry->client_comments,
                     'country' => $enquiry->country,
                     'city' => $enquiry->city,
@@ -128,6 +130,8 @@ class EnquiryController extends Controller
             $form_status = '';
             $period = $request->period ?? "";
             $lease_to_own = $request->lease_to_own ?? "";
+            $show_lease = $request->show_lease ?? "";
+            $km = $request->km ?? "";
             $client_comments = $request->client_comments ?? "";
             $gclid = $request->gclid;
             $source = $request->source;
@@ -151,6 +155,8 @@ class EnquiryController extends Controller
             $fetchEnquiry->form_status =$form_status;
             $fetchEnquiry->period = $period;
             $fetchEnquiry->lease_to_own = $lease_to_own;
+            $fetchEnquiry->show_lease = $show_lease;
+            $fetchEnquiry->km = $km;
             $fetchEnquiry->client_comments = $client_comments;
             $fetchEnquiry->language = $lang;
             $fetchEnquiry->save();
@@ -176,6 +182,8 @@ class EnquiryController extends Controller
                     'car_name' => $fetchEnquiry->car_name,
                     'period' => $fetchEnquiry->period,
                     'lease_to_own' => $fetchEnquiry->lease_to_own,
+                    'show_lease' => $fetchEnquiry->show_lease,
+                    'km' => $fetchEnquiry->km,
                     'client_comments' => $fetchEnquiry->client_comments,
                     'country' => $fetchEnquiry->country,
                     'city' => $fetchEnquiry->city,
@@ -253,6 +261,8 @@ class EnquiryController extends Controller
             $fetchEnquiry->form_status = '';
             $fetchEnquiry->period = $request->period ?? null;
             $fetchEnquiry->lease_to_own = $request->lease_to_own ?? null;
+            $fetchEnquiry->show_lease = $request->show_lease ?? null;
+            $fetchEnquiry->km = $request->km ?? null;
             $fetchEnquiry->client_comments = $request->client_comments ?? null;
             
             $fetchEnquiry->save();
@@ -277,6 +287,8 @@ class EnquiryController extends Controller
                     'car_name' => $fetchEnquiry->car_name,
                     'period' => $fetchEnquiry->period,
                     'lease_to_own' => $fetchEnquiry->lease_to_own,
+                    'show_lease' => $fetchEnquiry->show_lease,
+                    'km' => $fetchEnquiry->km,
                     'client_comments' => $fetchEnquiry->client_comments,
                     'country' => $fetchEnquiry->country,
                     'city' => $fetchEnquiry->city,
@@ -352,6 +364,8 @@ class EnquiryController extends Controller
                     'car_name' => $enquiry->car_name,
                     'period' => $enquiry->period,
                     'lease_to_own' => $enquiry->lease_to_own,
+                    'show_lease' => $enquiry->show_lease,
+                    'km' => $enquiry->km,
                     'client_comments' => $enquiry->client_comments,
                     'country' => $enquiry->country,
                     'city' => $enquiry->city,
@@ -440,6 +454,8 @@ class EnquiryController extends Controller
                     'car_name' => $enquiry->car_name,
                     'period' => $enquiry->period,
                     'lease_to_own' => $enquiry->lease_to_own,
+                    'show_lease' => $enquiry->show_lease,
+                    'km' => $enquiry->km,
                     'client_comments' => $enquiry->client_comments,
                     'country' => $enquiry->country,
                     'city' => $enquiry->city,
@@ -607,6 +623,8 @@ class EnquiryController extends Controller
                     'client_phone' => $enquiry->client_phone,
                     'client_email' => $enquiry->client_email,
                     'form_type' => ucwords(str_replace('_', ' ',$enquiry->form_type)),
+                    'show_lease' => $enquiry->show_lease,
+                    'km' => $enquiry->km,
                     'client_comments' => $enquiry->client_comments,
                     'created_at' => $enquiry->created_at
                 ];

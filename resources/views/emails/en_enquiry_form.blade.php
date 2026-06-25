@@ -152,6 +152,22 @@
                                 <strong>{{ $enquiryDetail['lease_to_own'] }}</strong>
                             </p>
                             @endif
+
+                            @if(!empty($enquiryDetail['show_lease']) && $enquiryDetail['show_lease'] != null)
+                            <p
+                                style="font-family: Arial, Helvetica, sans-serif; padding-block: 10px; margin-inline: auto;">
+                                <span style="color: #6e6e6e;">Show Lease:</span>
+                                <strong>{{ $enquiryDetail['show_lease'] }}</strong>
+                            </p>
+                            @endif
+
+                            @if(!empty($enquiryDetail['km']) && $enquiryDetail['km'] != null)
+                            <p
+                                style="font-family: Arial, Helvetica, sans-serif; padding-block: 10px; margin-inline: auto;">
+                                <span style="color: #6e6e6e;">KM:</span>
+                                <strong>{{ $enquiryDetail['km'] }}</strong>
+                            </p>
+                            @endif
                             
                             @if(!empty($enquiryDetail['client_comments']) && $enquiryDetail['client_comments'] != null)
                             <p
@@ -263,6 +279,22 @@
                                 style="font-family: Arial, Helvetica, sans-serif; padding-block: 10px; margin-inline: auto;">
                                 <span style="color: #6e6e6e;">Lease to Own:</span>
                                 <strong>{{ $enquiryDetail['lease_to_own'] }}</strong>
+                            </p>
+                            @endif
+
+                            @if(!empty($enquiryDetail['show_lease']) && $enquiryDetail['show_lease'] != null)
+                            <p
+                                style="font-family: Arial, Helvetica, sans-serif; padding-block: 10px; margin-inline: auto;">
+                                <span style="color: #6e6e6e;">Show Lease:</span>
+                                <strong>{{ $enquiryDetail['show_lease'] }}</strong>
+                            </p>
+                            @endif
+
+                            @if(!empty($enquiryDetail['km']) && $enquiryDetail['km'] != null)
+                            <p
+                                style="font-family: Arial, Helvetica, sans-serif; padding-block: 10px; margin-inline: auto;">
+                                <span style="color: #6e6e6e;">KM:</span>
+                                <strong>{{ $enquiryDetail['km'] }}</strong>
                             </p>
                             @endif
                             

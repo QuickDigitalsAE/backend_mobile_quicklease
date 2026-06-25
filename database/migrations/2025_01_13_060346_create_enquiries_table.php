@@ -30,6 +30,8 @@ return new class extends Migration
             $table->string('form_status')->nullable();
             $table->string('period')->nullable();
             $table->string('lease_to_own')->nullable();
+            $table->string('show_lease')->nullable();
+            $table->string('km')->nullable();
             $table->text('client_comments')->nullable();
             $table->string('language', 100)->nullable();
             $table->timestamps();

@@ -143,7 +143,21 @@
                                 <strong>{{ $enquiryDetail['lease_to_own'] }}</strong>
                             </p>
                             @endif
-        
+
+                            @if(!empty($enquiryDetail['show_lease']))
+                            <p style="font-family: Arial, Helvetica, sans-serif; padding-block: 10px;">
+                                <span style="color: #6e6e6e;">عرض الإيجار:</span>
+                                <strong>{{ $enquiryDetail['show_lease'] }}</strong>
+                            </p>
+                            @endif
+
+                            @if(!empty($enquiryDetail['km']))
+                            <p style="font-family: Arial, Helvetica, sans-serif; padding-block: 10px;">
+                                <span style="color: #6e6e6e;">كيلومتر:</span>
+                                <strong>{{ $enquiryDetail['km'] }}</strong>
+                            </p>
+                            @endif
+
                             @if(!empty($enquiryDetail['client_comments']))
                             <p style="font-family: Arial, Helvetica, sans-serif; padding-block: 10px;">
                                 <span style="color: #6e6e6e;">تعليقات العميل:</span>
@@ -243,7 +257,21 @@
                                 <strong>{{ $enquiryDetail['lease_to_own'] }}</strong>
                             </p>
                             @endif
-        
+
+                            @if(!empty($enquiryDetail['show_lease']) && $enquiryDetail['show_lease'] != null)
+                            <p style="font-family: Arial, Helvetica, sans-serif; padding-block: 10px; margin-inline: auto;">
+                                <span style="color: #6e6e6e;">عرض الإيجار:</span>
+                                <strong>{{ $enquiryDetail['show_lease'] }}</strong>
+                            </p>
+                            @endif
+
+                            @if(!empty($enquiryDetail['km']) && $enquiryDetail['km'] != null)
+                            <p style="font-family: Arial, Helvetica, sans-serif; padding-block: 10px; margin-inline: auto;">
+                                <span style="color: #6e6e6e;">كيلومتر:</span>
+                                <strong>{{ $enquiryDetail['km'] }}</strong>
+                            </p>
+                            @endif
+
                             @if(!empty($enquiryDetail['client_comments']) && $enquiryDetail['client_comments'] != null)
                             <p style="font-family: Arial, Helvetica, sans-serif; padding-block: 10px; margin-inline: auto;">
                                 <span style="color: #6e6e6e;">ملاحظات العميل:</span>
