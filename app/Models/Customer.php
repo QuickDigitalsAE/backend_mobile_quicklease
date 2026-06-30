@@ -23,19 +23,15 @@ class Customer extends Authenticatable
         'fcm_token'
     ];
     
+    protected $hidden = [
+        'password',
+        'fcm_token',
+    ];
+    
     protected $casts = [
         'is_active' => 'int'
     ];
     
     protected $dates = ['deleted_at'];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'password'
-    ];
 
 }

@@ -20,23 +20,48 @@ class MobileGuideController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function getGuide($id = "")
+    public function getGuide(Request $request, $id = "")
     {
         try {
-            if(!empty($id)){
+            if (!empty($id)) {
                 $data = $this->edit($id);
-            }else{
-                $guides = MobileGuide::where('status', 1)->get();
-        
+            } else {
+                $guideQuery = MobileGuide::query();
+    
+                // Status filter
+                // Example: ?status=1 or ?status=0
+                if ($request->has('status') && $request->filled('status')) {
+                    $guideQuery->where('status', $request->status);
+                } else {
+                    $guideQuery->where('status', 1);
+                }
+    
+                // Search filter
+                // Example: ?search=booking
+                if ($request->filled('search')) {
+                    $search = $request->search;
+    
+                    $guideQuery->where(function ($q) use ($search) {
+                        $q->where('title', 'LIKE', "%{$search}%")
+                            ->orWhere('description', 'LIKE', "%{$search}%")
+                            ->orWhere('button_text', 'LIKE', "%{$search}%")
+                            ->orWhere('redirect_url', 'LIKE', "%{$search}%");
+                    });
+                }
+    
+                $guides = $guideQuery->orderBy('created_at', 'DESC')->get();
+    
                 $data = $guides->map(function ($guide) {
                     return [
-                        'id'        => $guide->id,
+                        'id'           => $guide->id,
                         'title'        => $guide->title,
                         'description'  => $guide->description,
                         'image'        => $this->getImageUrl($guide->image),
                         'button_text'  => $guide->button_text,
                         'redirect_url' => $guide->redirect_url,
-                        'status' => $guide->status
+                        'status'       => (int) $guide->status,
+                        'created_at'   => $guide->created_at,
+                        'updated_at'   => $guide->updated_at,
                     ];
                 });
             }
@@ -46,6 +71,7 @@ class MobileGuideController extends Controller
                 'message' => 'Guide fetched successfully',
                 'data'    => $data
             ], 200);
+    
         } catch (\Exception $e) {
             return response()->json([
                 'status'  => false,

@@ -26,6 +26,7 @@ use App\Http\Controllers\ApisFiles\ProductPropertiesController;
 use App\Http\Controllers\ApisFiles\PaymentController;
 use App\Http\Controllers\ApisFiles\SubscriptionController;
 use App\Http\Controllers\ApisFiles\UserActivityLogController;
+use App\Http\Controllers\ApisFiles\CustomerController;
 use App\Http\Controllers\ApisFiles\CustomerAuthController;
 use App\Http\Controllers\ApisFiles\NotificationController;
 use App\Http\Controllers\ApisFiles\SettingController;
@@ -262,6 +263,22 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Delete a user by ID
     Route::delete('/userDelete/{id}', [UserController::class, 'deleteUser']);
+
+    Route::group(['prefix' => 'customers', 'middleware' => 'validateLang'], function () {
+        Route::get('/', [CustomerController::class, 'index']);
+        Route::post('/', [CustomerController::class, 'store']);
+        Route::get('/{id}', [CustomerController::class, 'show']);
+        Route::post('/{id}', [CustomerController::class, 'update']);
+        Route::delete('/{id}', [CustomerController::class, 'destroy']);
+        Route::post('/{id}/status', [CustomerController::class, 'updateStatus']);
+    });
+
+    Route::group(['prefix' => 'guidance'], function () {
+        Route::get('/{id?}', [MobileGuideController::class, 'getGuide']);
+        Route::post('/', [MobileGuideController::class,'postGuide']);
+        Route::post('/{id}', [MobileGuideController::class, 'patchGuide']);
+        Route::delete('/{id}', [MobileGuideController::class, 'deleteGuide']);
+    });
     
     Route::group(['prefix' => 'activities', 'middleware' => 'validateLang'], function(){
         
