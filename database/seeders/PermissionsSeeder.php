@@ -27,6 +27,9 @@ class PermissionsSeeder extends Seeder
             ],
             'WebContents' => [
                 'WebContent Menu', 'WebContent View', 'WebContent Add', 'WebContent Edit'
+            ],
+            'PopupBanners' => [
+                'PopupBanners Menu', 'PopupBanners View', 'PopupBanners Add', 'PopupBanners Edit', 'PopupBanners Delete'
             ]
         ];    
         
