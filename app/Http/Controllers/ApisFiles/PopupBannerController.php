@@ -107,13 +107,6 @@ class PopupBannerController extends Controller
                 ->first();
 
             if (!$popupBanner) {
-                $popupBanner = PopupBanner::query()
-                    ->where('status', 1)
-                    ->orderBy('created_at', 'DESC')
-                    ->first();
-            }
-
-            if (!$popupBanner) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Popup banner not found',
