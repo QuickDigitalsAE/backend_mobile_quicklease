@@ -608,6 +608,8 @@ Route::group(['prefix' => 'mobile'], function () {
     
     // Fetch dashboard content
     Route::get('/dashboard', [WebContentController::class,'getDashboard']);
+
+    Route::get('/fetchPopupBanner', [PopupBannerController::class, 'frontendPopupBanner']);
     
     // Fetch faqs content
     Route::get('/faqs', [WebContentController::class,'getFaqs']);
