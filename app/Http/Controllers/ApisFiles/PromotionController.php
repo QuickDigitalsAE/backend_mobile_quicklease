@@ -447,6 +447,8 @@ class PromotionController extends Controller
             $rules = [
                 'date_from' => 'required|date_format:Y-m-d',
                 "date_to" => 'required|date_format:Y-m-d',
+                'pickup_time' => 'nullable|date_format:H:i',
+                'dropoff_time' => 'nullable|date_format:H:i',
                 'product_id' => 'required|numeric'
             ];
             
@@ -461,6 +463,8 @@ class PromotionController extends Controller
             }else{
                 $date_from = $request->date_from;
                 $date_to = $request->date_to;
+                $pickup_time = $request->pickup_time;
+                $dropoff_time = $request->dropoff_time;
                 $product_id = $request->product_id;
                 
                 $promotion = Promotion::find($promotion_id);
@@ -470,14 +474,32 @@ class PromotionController extends Controller
                 }
                 
                 $daysCount = $total = 0;
-                if (!empty($date_from) && !empty($date_to)) {
-                    
-                    // Convert strings to Carbon instances
-                    $from = Carbon::createFromFormat('Y-m-d', $date_from);
-                    $to = Carbon::createFromFormat('Y-m-d', $date_to);
-                    
-                    // Calculate the difference in days
-                    $daysCount = $from->diffInDays($to);
+                if (!empty($date_from) && !empty($date_to) && !empty($pickup_time) && !empty($dropoff_time)) {
+
+                    $fromDateTime = Carbon::createFromFormat(
+                        'Y-m-d H:i',
+                        $date_from . ' ' . $pickup_time
+                    );
+
+                    $toDateTime = Carbon::createFromFormat(
+                        'Y-m-d H:i',
+                        $date_to . ' ' . $dropoff_time
+                    );
+
+                    // Date difference only
+                    $daysCount = $fromDateTime->copy()->startOfDay()->diffInDays(
+                        $toDateTime->copy()->startOfDay()
+                    );
+
+                    // Pickup time + 1 hour grace
+                    $graceTime = $fromDateTime->copy()
+                        ->addDays($daysCount)
+                        ->addHour();
+
+                    // If the grace period is exceeded, add one more day.
+                    if ($toDateTime->gt($graceTime)) {
+                        $daysCount++;
+                    }
                 }
                 
                 $product = Product::find($product_id);

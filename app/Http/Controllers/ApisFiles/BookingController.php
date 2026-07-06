@@ -507,6 +507,8 @@ class BookingController extends Controller
                     $customRequest = new Request([
                         'date_from' => $from_date,
                         'date_to' => $to_date,
+                        'pickup_time' => $pickup_time,
+                        'dropoff_time' => $dropoff_time,
                         'product_id' => $product_id
                     ]);
                     
@@ -519,6 +521,8 @@ class BookingController extends Controller
                     $customRequest = new Request([
                         'date_from' => $from_date,
                         'date_to' => $to_date,
+                        'pickup_time' => $pickup_time,
+                        'dropoff_time' => $dropoff_time,
                         'promo_code' => $promo_code,
                         'promo_type' => $promo_type,
                         'percentage' => $percentage,
@@ -1312,18 +1316,26 @@ class BookingController extends Controller
         $pickup_date_time = trim(request()->query('pickup_date_time'));
         $return_date_time = trim(request()->query('return_date_time'));
         
-        $date_from = Carbon::createFromFormat('Y-m-d H:i', $pickup_date_time)->format('Y-m-d');
-        $date_to = Carbon::createFromFormat('Y-m-d H:i', $return_date_time)->format('Y-m-d');
-
         $daysCount = $total = 0;
-        if (!empty($date_from) && !empty($date_to)) {
-            // Convert strings to Carbon instances
-            $from = Carbon::createFromFormat('Y-m-d', $date_from);
-            $to = Carbon::createFromFormat('Y-m-d', $date_to);
-            
-            // Calculate the difference in days
-            $daysCount = $from->diffInDays($to);
-            
+        if (!empty($pickup_date_time) && !empty($return_date_time)) {
+
+            $fromDateTime = Carbon::createFromFormat('Y-m-d H:i', $pickup_date_time);
+            $toDateTime = Carbon::createFromFormat('Y-m-d H:i', $return_date_time);
+                
+            // Date difference only
+            $daysCount = $fromDateTime->copy()->startOfDay()->diffInDays(
+                $toDateTime->copy()->startOfDay()
+            );
+
+            // Pickup time + 1 hour grace
+            $graceTime = $fromDateTime->copy()
+                ->addDays($daysCount)
+                ->addHour();
+
+            // If the grace period is exceeded, add one more day.
+            if ($toDateTime->gt($graceTime)) {
+                $daysCount++;
+            }
         }
         
         $price_type = request()->query('price_type');
