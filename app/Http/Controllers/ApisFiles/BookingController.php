@@ -563,11 +563,11 @@ class BookingController extends Controller
 
                 // Set hide IDs
                 if ($daysCount <= 6) {    
-                    $hide_coverages_ids = [24,25,26,27,28,29,30,31];
+                    $hide_coverages_ids = [24,25,26,27,28];
                 } elseif ($daysCount >= 7 && $daysCount < 30) {
-                    $hide_coverages_ids = [24,25,26,27,32,33];
+                    $hide_coverages_ids = [24,25,26,27,32];
                 } elseif ($daysCount >= 30) {
-                    $hide_coverages_ids = [28,29,30,31,32,33];
+                    $hide_coverages_ids = [28,32];
                 } else {
                     $hide_coverages_ids = [];
                 }
