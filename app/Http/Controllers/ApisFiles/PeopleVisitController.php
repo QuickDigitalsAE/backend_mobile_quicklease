@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
+use Carbon\Carbon;
 
 class PeopleVisitController extends Controller
 {
@@ -25,7 +26,8 @@ class PeopleVisitController extends Controller
             $query = PeopleVisit::query()
                 ->select(
                     'slug',
-                    DB::raw('COUNT(*) as people_visited')
+                    DB::raw('COUNT(*) as people_visited'),
+                    DB::raw('MAX(visit_datetime) as visit_datetime')
                 );
 
             if ($request->filled('search')) {
@@ -51,7 +53,10 @@ class PeopleVisitController extends Controller
 
             // Single selected date
             if ($request->filled('selected_date')) {
-                $query->whereDate('visit_datetime', $request->selected_date);
+                $selectedDate = Carbon::parse($request->selected_date)->format('Y-m-d');
+
+                $query->whereDate('visit_datetime', $selectedDate);
+
             }
 
             // Date range
@@ -103,6 +108,7 @@ class PeopleVisitController extends Controller
                 'data' => $PeopleVisits->map(function ($item) {
 
                     $slug = $item->slug;
+                    $visit_datetime = $item->visit_datetime;
 
                     // If slug contains '/', take the last part
                     if (str_contains($slug, '/')) {
@@ -118,6 +124,7 @@ class PeopleVisitController extends Controller
                         'slug' => $slug,
                         'title' => $title,
                         'people_visited' => (int) $item->people_visited,
+                        'visit_datetime' => $visit_datetime,
                     ];
                 }),
                 'pagination' => $pagination,
