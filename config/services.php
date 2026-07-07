@@ -35,4 +35,9 @@ return [
         'return_path' => env('ETISALAT_RETURN_PATH ')
     ],
 
+    'exchange_rate' => [
+        'base_url' => env('EXCHANGE_RATE_API_BASE_URL', 'https://v6.exchangerate-api.com/v6'),
+        'api_key' => env('EXCHANGE_RATE_API_KEY'),
+        'base' => env('EXCHANGE_RATE_BASE', 'AED'),
+    ],
 ];

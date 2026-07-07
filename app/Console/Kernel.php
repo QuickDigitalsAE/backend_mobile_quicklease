@@ -15,7 +15,12 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->command('exchange-rates:fetch')
+            ->everyMinute()
+            ->withoutOverlapping();
+        // $schedule->command('exchange-rates:fetch')
+        //     ->dailyAt('00:05')
+        //     ->withoutOverlapping();
     }
 
     /**
