@@ -1912,6 +1912,7 @@ class BookingController extends Controller
                 $priceType = request()->query('price_type');
                 $carTypes = request()->query('car_types', []);
                 $featured = request()->query('featured');
+                $year = request()->query('year');
                 $availability = request()->query('availability');
                 $priceCategory = request()->query('price_category');
                 $min = (int) request()->query('min', 0);
@@ -1974,11 +1975,14 @@ class BookingController extends Controller
                 if ($featured !== null && $featured !== '') {
                     $productQuery->where('products.featured', (int) $featured);
                 }
+
+                if ($year !== null && $year !== '') {
+                    $productQuery->where('products.year', (int) $year);
+                }
             
                 if ($availability !== null && $availability !== '') {
                     $productQuery->where('products.stock_status', $availability);
                 }
-                
                 
                 if (
                     $priceCategory !== null &&

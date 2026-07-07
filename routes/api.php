@@ -8,6 +8,7 @@ use App\Http\Controllers\ApisFiles\MenuController;
 use App\Http\Controllers\ApisFiles\WebContentController;
 use App\Http\Controllers\ApisFiles\MobileGuideController;
 use App\Http\Controllers\ApisFiles\PopupBannerController;
+use App\Http\Controllers\ApisFiles\PeopleVisitController;
 use App\Http\Controllers\ApisFiles\GoogleReviewController;
 use App\Http\Controllers\ApisFiles\SidebarBannerController;
 use App\Http\Controllers\ApisFiles\PartnerController;
@@ -242,6 +243,7 @@ Route::group(['prefix' => 'webContents', 'middleware' => 'validateLang'], functi
 
 Route::get('/fetchRandomBanner/{lang?}', [SidebarBannerController::class, 'getRadomBanner']);
 Route::get('/fetchPopupBanner', [PopupBannerController::class, 'frontendPopupBanner']);
+Route::post('/people-visites/track', [PeopleVisitController::class, 'trackVisit']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     
@@ -554,6 +556,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('/{id}', [NotificationController::class, 'update']);
         Route::delete('/{id}', [NotificationController::class, 'destroy']);
         Route::patch('/{id}/revoke', [NotificationController::class, 'revoke']);
+    });
+
+    Route::prefix('people-visits')->group(function () {
+        Route::get('/', [PeopleVisitController::class, 'index']);
+        Route::post('/', [PeopleVisitController::class, 'store']);
+        Route::get('/{id}', [PeopleVisitController::class, 'show']);
+        Route::post('/{id}', [PeopleVisitController::class, 'update']);
+        Route::delete('/{id}', [PeopleVisitController::class, 'destroy']);
     });
 });
 // Subscription footer section api

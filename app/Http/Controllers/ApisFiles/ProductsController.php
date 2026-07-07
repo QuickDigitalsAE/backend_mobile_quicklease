@@ -18,6 +18,7 @@ use App\Models\ProductCoverageTranslation;
 use App\Models\ProductTranslation;
 use App\Models\PropertyTranslation;
 use App\Models\CatalogTranslation;
+use App\Models\PeopleVisit;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
@@ -1721,6 +1722,12 @@ class ProductsController extends Controller
             } else {
                 $translatedData['google_reviews'] = [];
             }
+
+            $PeopleVisitdCount = PeopleVisit::where('slug', $product->slug)
+                ->where('visit_datetime', '>=', now()->subMinutes(30))
+                ->count();
+                
+            $translatedData['people_visited'] = $PeopleVisitdCount;
             
             return response()->json([
                 'status' => true,
