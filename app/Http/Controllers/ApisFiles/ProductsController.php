@@ -2005,6 +2005,7 @@ class ProductsController extends Controller
     {
         try {
             $searchQuery = request()->input('search_query', null);
+            $stockStatus = request()->input('stock_status', null);
             $productsQuery = Product::query()
             ->join('product_translations', function ($join) use ($lang) {
                 $join->on('products.id', '=', 'product_translations.product_id')
@@ -2022,6 +2023,10 @@ class ProductsController extends Controller
                           ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(product_translations.field_values, '$.product_title'))) LIKE ?", ["%".strtolower($searchQuery)."%"])
                           ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(product_translations.field_values, '$.heading_one'))) LIKE ?", ["%".strtolower($searchQuery)."%"]);
                 });
+            }
+
+            if ($stockStatus !== null && $stockStatus !== '') {
+                $productsQuery->where('products.stock_status', (int) $stockStatus);
             }
     
             $productsQuery->orderBy('created_at', 'DESC');
