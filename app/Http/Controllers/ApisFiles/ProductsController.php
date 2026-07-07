@@ -2168,6 +2168,11 @@ class ProductsController extends Controller
                 $featured = $request->input('featured');
                 $productQuery->where('featured', $featured);
             }
+
+            if ($request->filled('year')) {
+                $year = $request->input('year');
+                $productQuery->where('year', $year);
+            }
     
              if ($request->filled('availability')) {
                 $productQuery->where('stock_status', $request->input('availability'));

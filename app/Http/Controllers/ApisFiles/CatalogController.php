@@ -1006,6 +1006,7 @@ class CatalogController extends Controller
                 $price_type = request()->query('price_type');
                 $car_types = request()->query('car_types');
                 $featured = request()->query('featured');
+                $year = request()->query('year');
                 $price_category = request()->query('price_category');
                 $min = request()->query('min');
                 $max = request()->query('max');
@@ -1016,6 +1017,7 @@ class CatalogController extends Controller
                             'price_type'      => $price_type,
                             'car_types'       => $car_types,
                             'featured'        => $featured,
+                            'year'            => $year,
                             'availability'    => $availability,
                             'price_category'  => $price_category,
                             'min'             => $min,
@@ -1316,6 +1318,7 @@ class CatalogController extends Controller
                 $price_type = request()->query('price_type');
                 $car_types = request()->query('car_types');
                 $featured = request()->query('featured');
+                $year = request()->query('year');
                 $availability = request()->query('availability');
                 $price_category = request()->query('price_category');
                 $min = request()->query('min');
@@ -1327,6 +1330,7 @@ class CatalogController extends Controller
                             'price_type'      => $price_type,
                             'car_types'       => $car_types,
                             'featured'        => $featured,
+                            'year'            => $year,
                             'availability'    => $availability,
                             'price_category'  => $price_category,
                             'min'             => $min,
