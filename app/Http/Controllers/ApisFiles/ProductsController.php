@@ -159,6 +159,8 @@ class ProductsController extends Controller
                 $translatedData['model'] = $product->model;
                 $translatedData['slug'] = $product->slug;
                 $translatedData['main_image'] = $product->main_image ? $this->getImageUrl($product->main_image) : null;
+                $translatedData['car_ids'] = $this->decodeJsonIds($product->car_ids);
+                $translatedData['car_count'] = $this->safeCount($translatedData['car_ids'] ?? null);
              
                 return $translatedData;
             });
@@ -462,6 +464,8 @@ class ProductsController extends Controller
                 $productListData['page_full_slug'] = $page_full_slug;
                 $productListData['slug'] = $product_slug;
                 $productListData['main_image'] = $product->main_image ? $this->getImageUrl($product->main_image) : null;
+                $productListData['car_ids'] = $this->decodeJsonIds($product->car_ids);
+                $productListData['car_count'] = $this->safeCount($productListData['car_ids'] ?? null);
                 
                 $car_images = json_decode($product->car_images) ?? null;
                 // Process car images
@@ -548,7 +552,9 @@ class ProductsController extends Controller
                 $relatedCarsData['product_title']  = $product_tile;
                 $relatedCarsData['slug'] = $product->slug;
                 $relatedCarsData['main_image'] = $product->main_image ? $this->getImageUrl($product->main_image) : null;
-                
+                $relatedCarsData['car_ids'] = $this->decodeJsonIds($product->car_ids);
+                $relatedCarsData['car_count'] = $this->safeCount($relatedCarsData['car_ids'] ?? null);
+
                 return $relatedCarsData;
             });
             
@@ -740,6 +746,8 @@ class ProductsController extends Controller
                 $relatedCarsData['page_full_slug'] = $page_full_slug;
                 $relatedCarsData['slug'] = $product_slug;
                 $relatedCarsData['main_image'] = $product->main_image ? $this->getImageUrl($product->main_image) : null;
+                $relatedCarsData['car_ids'] = $this->decodeJsonIds($product->car_ids);
+                $relatedCarsData['car_count'] = $this->safeCount($relatedCarsData['car_ids'] ?? null);
                 $relatedCarsData['groupedProperties'] = $fetchAllProperties;
                 
                 return $relatedCarsData;
@@ -876,6 +884,8 @@ class ProductsController extends Controller
             $relatedCarsData['page_full_slug'] = $page_full_slug;
             $relatedCarsData['slug'] = $product_slug;
             $relatedCarsData['main_image'] = $product->main_image ? $this->getImageUrl($product->main_image) : null;
+            $relatedCarsData['car_ids'] = $this->decodeJsonIds($product->car_ids);
+            $relatedCarsData['car_count'] = $this->safeCount($relatedCarsData['car_ids'] ?? null);
             $relatedCarsData['groupedProperties'] = $fetchAllProperties;
 
             return $relatedCarsData;
@@ -932,7 +942,8 @@ class ProductsController extends Controller
                 'model' => 'nullable|string',
                 'main_image' => 'required|string',
                 'translation' => 'array',
-                'properties' => 'array'
+                'properties' => 'array',
+                'car_ids' => 'nullable|array'
             ];
 
             $validator = Validator::make($request->all(), $rules);
@@ -953,6 +964,7 @@ class ProductsController extends Controller
                 $main_image = $request->input('main_image');
                 $car_images = $request->input('car_images');
                 $additional_catalog_ids = $request->input('additional_catalog_ids');
+                $car_ids = $request->input('car_ids');
                 $car_locations = $request->input('car_locations');
                 $featured = $request->input('featured');
                 $pay_now_discount = $request->input('pay_now_discount');
@@ -1000,6 +1012,11 @@ class ProductsController extends Controller
                 if(is_array($additional_catalog_ids) && $additional_catalog_ids != null){
                     $filtered_catalog_ids = array_filter($additional_catalog_ids);
                 }
+
+                $filtered_car_ids = [];
+                if (is_array($car_ids) && $car_ids != null) {
+                    $filtered_car_ids = array_values(array_filter($car_ids));
+                }
                 
                 if(is_array($car_locations) && $car_locations != null){
                     $filtered_locations = array_filter($car_locations);
@@ -1010,6 +1027,7 @@ class ProductsController extends Controller
             
                 $product->catalog_id = $catalog_id;
                 $product->additional_catalog_ids = !empty($filtered_catalog_ids) ? json_encode($filtered_catalog_ids) : null;
+                $product->car_ids = !empty($filtered_car_ids) ? json_encode($filtered_car_ids) : null;
                 $product->car_locations = !empty($filtered_locations) ? json_encode($filtered_locations) : null;
                 $product->product_status = $product_status;
                 $product->featured = $featured;
@@ -1152,7 +1170,8 @@ class ProductsController extends Controller
                 'year' => 'nullable|string',
                 'model' => 'nullable|string',
                 'translation' => 'array',
-                'properties' => 'array'
+                'properties' => 'array',
+                'car_ids' => 'nullable|array'
             ];
     
             $validator = Validator::make($request->all(), $rules);
@@ -1179,6 +1198,7 @@ class ProductsController extends Controller
                 $main_image = $request->input('main_image');
                 $car_images = $request->input('car_images');
                 $additional_catalog_ids = $request->input('additional_catalog_ids');
+                $car_ids = $request->input('car_ids');
                 $previous_catalog_ids = json_decode($product->additional_catalog_ids, true) ?? [];
                 $car_locations = $request->input('car_locations');
                 $product_status = $request->input('product_status');
@@ -1216,6 +1236,11 @@ class ProductsController extends Controller
                 if(is_array($additional_catalog_ids) && $additional_catalog_ids != null){
                     $filtered_catalog_ids = array_filter($additional_catalog_ids);
                 }
+
+                $filtered_car_ids = [];
+                if (is_array($car_ids) && $car_ids != null) {
+                    $filtered_car_ids = array_values(array_filter($car_ids));
+                }
                 
                 if(is_array($car_locations) && $car_locations != null){
                     $filtered_locations = array_filter($car_locations);
@@ -1233,6 +1258,7 @@ class ProductsController extends Controller
                 
                 $product->catalog_id = $catalog_id;
                 $product->additional_catalog_ids = !empty($filtered_catalog_ids) ? json_encode($filtered_catalog_ids) : null;
+                $product->car_ids = !empty($filtered_car_ids) ? json_encode($filtered_car_ids) : null;
                 $product->car_locations = !empty($filtered_locations) ? json_encode($filtered_locations) : null;
                 $product->product_status = $product_status;
                 $product->pay_now_discount = $pay_now_discount;
@@ -1505,9 +1531,14 @@ class ProductsController extends Controller
             $translatedData['model'] = $product->model;
             $translatedData['slug'] = $product->slug;
             $translatedData['main_image'] = $product->main_image ? $this->getImageUrl($product->main_image) : null;
+            $translatedData['car_ids'] = $this->decodeJsonIds($product->car_ids);
+            $translatedData['car_count'] = $this->safeCount($translatedData['car_ids'] ?? null);
             $translatedData['groupedProperties'] = $fetchAllProperties;
             $translatedData['related_coverages'] = $productCoverages;
             $translatedData['additional_catalogs'] = $additionalCatalogData;
+            $translatedData['related_cars'] = !empty($translatedData['car_ids'])
+                ? $this->getProductsByIds($lang, $translatedData['car_ids'])
+                : [];
          
             $car_images = json_decode($product->car_images) ?? null;
 
@@ -1622,6 +1653,8 @@ class ProductsController extends Controller
             $roundedPrices = array_map(function ($value) {
                 return round((float) $value);
             }, $monthlyPrices);
+
+            $car_ids = json_decode($product->car_ids, true);
         
             // Handle image URLs for primary fields
             $translatedData['product_id']      = $id;
@@ -1661,6 +1694,10 @@ class ProductsController extends Controller
             $translatedData['page_full_slug'] = $page_full_slug;
             $translatedData['slug'] = $product_slug;
             $translatedData['main_image'] = $product->main_image ? $this->getImageUrl($product->main_image) : null;
+            $translatedData['car_count'] = $this->safeCount($car_ids ?? null);
+            $translatedData['related_cars'] = !empty($car_ids)
+                ? $this->getProductsByIds($lang, $car_ids)
+                : [];
             $translatedData['groupedProperties'] = $fetchAllProperties;
             
             $car_images = json_decode($product->car_images) ?? null;
@@ -2098,6 +2135,8 @@ class ProductsController extends Controller
                 $translatedData['model'] = $product->model;
                 $translatedData['slug'] = $product->slug;
                 $translatedData['main_image'] = $product->main_image ? $this->getImageUrl($product->main_image) : null;
+                $translatedData['car_ids'] = $this->decodeJsonIds($product->car_ids);
+                $translatedData['car_count'] = $this->safeCount($translatedData['car_ids'] ?? null);
                 
                 return $translatedData;
             });
@@ -2352,6 +2391,8 @@ class ProductsController extends Controller
                     'model' => $dt['model'],
                     'slug' => $dt['slug'],
                     'main_image' => $dt['main_image'] ? $this->getImageUrl($dt['main_image']) : null,
+                    'car_ids' => $this->decodeJsonIds($dt['car_ids'] ?? null),
+                    'car_count' => $this->safeCount($this->decodeJsonIds($dt['car_ids'] ?? null)),
                     'groupedProperties' => $fetchAllProperties
                 ]);
                 
@@ -2629,6 +2670,61 @@ class ProductsController extends Controller
                 'message' => 'An error occurred: ' . $ex->getMessage()
             ], 200);
         }
+    }
+
+    protected function decodeJsonIds($value): array
+    {
+        if (is_array($value)) {
+            return array_values(array_filter($value, function ($item) {
+                return $item !== null && $item !== '';
+            }));
+        }
+
+        if (is_string($value) && $value !== '') {
+            $decoded = json_decode($value, true);
+
+            if (is_array($decoded)) {
+                return array_values(array_filter($decoded, function ($item) {
+                    return $item !== null && $item !== '';
+                }));
+            }
+        }
+
+        return [];
+    }
+
+    protected function safeCount($value): int
+    {
+        if (is_array($value) || $value instanceof \Countable) {
+            return count($value);
+        }
+
+        return 0;
+    }
+
+    protected function getProductsByIds($lang, array $carIds): array
+    {
+        if (empty($carIds)) {
+            return [];
+        }
+        
+        $productsResponse = $this->fetchCatalogCars($lang, 0, $carIds, false, false, 1);
+        
+        if (isset($productsResponse->original['data']) && !empty($productsResponse->original['data'])) {
+            $products = $productsResponse->original['data'];
+
+            if ($products instanceof \Illuminate\Support\Collection) {
+                return $products->values()->all();
+            }
+
+            if (is_array($products)) {
+                return array_values($products);
+            }
+
+            return [];
+        }
+
+        return [];
     }
 
     public function getUserName($userId)
