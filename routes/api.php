@@ -33,6 +33,7 @@ use App\Http\Controllers\ApisFiles\CustomerAuthController;
 use App\Http\Controllers\ApisFiles\NotificationController;
 use App\Http\Controllers\ApisFiles\SettingController;
 use App\Http\Controllers\ApisFiles\UserDocumentController;
+use App\Http\Controllers\ApisFiles\CurrencyController;
 
 /*
 |--------------------------------------------------------------------------
@@ -218,6 +219,11 @@ Route::group(['prefix' => 'quicklease', 'middleware' => 'validateLang'], functio
 
 // For Contact Us Form route
 Route::post('/contact-us-form', [EnquiryController::class, 'contactusForm']);
+
+Route::prefix('currency')->group(function () {
+    Route::get('/convert', [CurrencyController::class, 'convert']);
+    Route::post('/sync', [CurrencyController::class, 'sync']);
+});
 
 // Upload Image Section
 Route::post('/innerPages/uploadImage/', [UploadFileController::class, 'uploadSingleImage']);
