@@ -111,8 +111,12 @@ class PaymentController extends Controller
     }
     
     public function paymentCallback($lang, $transaction_id)
-    {   
-        $booking = Booking::where('transaction_id', $transaction_id)->first();
+    {
+        
+        // Decode
+        $decoded_transaction_id = base64_decode($transaction_id);
+        
+        $booking = Booking::where('transaction_id', $decoded_transaction_id)->first();
         
         if (!$booking) {
             return response()->json([
@@ -144,7 +148,7 @@ class PaymentController extends Controller
         $response = $client->post($ETISALAT_API_URL, [
             'json' => [
                 "Finalization" => [
-                    "TransactionID" => $transaction_id,
+                    "TransactionID" => $decoded_transaction_id,
                     "Customer" => $ETISALAT_CUSTOMER
                 ]
             ],
