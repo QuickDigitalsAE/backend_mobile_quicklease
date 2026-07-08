@@ -1050,7 +1050,7 @@ class BookingController extends Controller
                 if($paymentInnerDetails->original['data']){
                     $paymentInnerData = $paymentInnerDetails->original['data'];
                     $payment_url = !empty($paymentInnerData['Transaction']['PaymentPortal']) ? $paymentInnerData['Transaction']['PaymentPortal'] : "";
-                    $transaction_id = !empty($paymentInnerData['Transaction']['TransactionId']) ? $paymentInnerData['Transaction']['TransactionId'] : "";
+                    $transaction_id = !empty($paymentInnerData['Transaction']['TransactionID']) ? $paymentInnerData['Transaction']['TransactionID'] : "";
                 }
             }
             
