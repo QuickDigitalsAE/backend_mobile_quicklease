@@ -116,7 +116,7 @@ class PaymentController extends Controller
         // Decode
         $decoded_transaction_id = base64_decode($transaction_id);
         
-        $booking = Booking::where('transaction_id', $decoded_transaction_id)->first();
+        $booking = Booking::where('transaction_id', $transaction_id)->first();
         
         if (!$booking) {
             return response()->json([
@@ -125,15 +125,17 @@ class PaymentController extends Controller
             ], 200);
         }
         
-        // $ETISALAT_CUSTOMER = 'Demo Merchant';
-        // $ETISALAT_USER = 'Demo_fY9c';
-        // $ETISALAT_PASS = 'Comtrust@20182018';
-        // $ETISALAT_API_URL = 'https://demo-ipg.ctdev.comtrust.ae:2443';
+        $ETISALAT_CUSTOMER = 'Demo Merchant';
+        $ETISALAT_USER = 'Demo_fY9c';
+        $ETISALAT_PASS = 'Comtrust@20182018';
+        $ETISALAT_STORE = '0000';
+        $ETISALAT_TERMINAL = '0000';
+        $ETISALAT_API_URL = 'https://demo-ipg.ctdev.comtrust.ae:2443';
         
-        $ETISALAT_CUSTOMER = config('app.etisalat_customer');
-        $ETISALAT_USER = config('app.etisalat_user');
-        $ETISALAT_PASS = config('app.etisalat_pass');
-        $ETISALAT_API_URL = config('app.etisalat_api_url');
+        // $ETISALAT_CUSTOMER = config('app.etisalat_customer');
+        // $ETISALAT_USER = config('app.etisalat_user');
+        // $ETISALAT_PASS = config('app.etisalat_pass');
+        // $ETISALAT_API_URL = config('app.etisalat_api_url');
         // $ETISALAT_RETURN_PATH = config('app.etisalat_return_path');
         
         // Concatenate in the format: username:password
@@ -146,7 +148,7 @@ class PaymentController extends Controller
         $response = $client->post($ETISALAT_API_URL, [
             'json' => [
                 "Finalization" => [
-                    "TransactionID" => $decoded_transaction_id,
+                    "TransactionID" => $transaction_id,
                     "Customer" => $ETISALAT_CUSTOMER
                 ]
             ],

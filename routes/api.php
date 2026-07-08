@@ -648,5 +648,5 @@ Route::group(['prefix' => 'mobile'], function () {
     // Send Enquiry form
     Route::post('/sendEnquiry/{lang?}', [EnquiryController::class, 'offerForm']);
 
-    Route::get('/paymentCallback/{lang?}/{bookingId?}', [PaymentController::class, 'paymentCallback']);
+    Route::get('/paymentCallback/{lang?}/{transaction_id?}', [PaymentController::class, 'paymentCallback']);
 });
