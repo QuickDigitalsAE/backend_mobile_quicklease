@@ -1023,7 +1023,7 @@ class BookingController extends Controller
                             ->orderByRaw("FIELD(language, ?, 'en')", [$lang])
                             ->first();
                             
-            $product_title = $payment_url=  "";                
+            $product_title = $payment_url= $transaction_id = "";                
             if(!empty($translation)){
                 $translatedData =  json_decode($translation->field_values, true);
                 $product_title = $translatedData['product_title'] ?? "";
@@ -1050,6 +1050,7 @@ class BookingController extends Controller
                 if($paymentInnerDetails->original['data']){
                     $paymentInnerData = $paymentInnerDetails->original['data'];
                     $payment_url = !empty($paymentInnerData['Transaction']['PaymentPortal']) ? $paymentInnerData['Transaction']['PaymentPortal'] : "";
+                    $transaction_id = !empty($paymentInnerData['Transaction']['TransactionId']) ? $paymentInnerData['Transaction']['TransactionId'] : "";
                 }
             }
             
@@ -1121,7 +1122,8 @@ class BookingController extends Controller
                         'data' => [
                             'booking_id' => $booking_id,
                             'order_number' => $orderNumber,
-                            'payment_url' => $payment_url
+                            'payment_url' => $payment_url,
+                            'transaction_id' => $transaction_id
                         ]
                     ], 200);
 
