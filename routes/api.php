@@ -626,6 +626,8 @@ Route::group(['prefix' => 'mobile'], function () {
     Route::get('/dashboard', [WebContentController::class,'getDashboard']);
 
     Route::get('/fetchPopupBanner', [PopupBannerController::class, 'frontendPopupBanner']);
+
+    Route::post('/people-visites/track', [PeopleVisitController::class, 'trackVisit']);
     
     // Fetch faqs content
     Route::get('/faqs', [WebContentController::class,'getFaqs']);
