@@ -111,11 +111,7 @@ class PaymentController extends Controller
     }
     
     public function paymentCallback($lang, $transaction_id)
-    {
-        
-        // Decode
-        $decoded_transaction_id = base64_decode($transaction_id);
-        
+    {   
         $booking = Booking::where('transaction_id', $transaction_id)->first();
         
         if (!$booking) {
