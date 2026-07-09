@@ -540,18 +540,17 @@ class BookingController extends Controller
                 $status = true;
                 $promo_code_value = "";
                 $car_price = $daysCount = $car_sum_price = $car_vat_price = $total_discount = $total_discount_vat = 0;
-                $productInnerResponse = $this->extractResponsePayload($productInnerDetails);
-                if(!empty($productInnerResponse)){
-                    $productInnerData = $productInnerResponse['data'] ?? [];
-                    $promo_message = $productInnerResponse['message'] ?? '';
-                    $status = $productInnerResponse['status'] ?? $status;
-                    $daysCount = $productInnerData['days_count'] ?? 0;
-                    $promo_code_value = $productInnerData['promo_code_value'] ?? "";
-                    $car_sum_price = $productInnerData['sum_price'] ?? 0;
-                    $car_vat_price = $productInnerData['vat'] ?? 0;
-                    $total_discount = $productInnerData['total_discount'] ?? 0;
-                    $total_discount_vat = $productInnerData['total_discount_vat'] ?? 0;
-                    $car_price = $productInnerData['total'] ?? 0;
+                if($productInnerDetails){
+                    $productInnerData = $productInnerDetails->original['data'];
+                    $promo_message = $productInnerDetails->original['message'];
+                    $status = $productInnerDetails->original['status'];
+                    $daysCount = $productInnerData['days_count'];
+                    $promo_code_value = $productInnerData['promo_code_value'];
+                    $car_sum_price = $productInnerData['sum_price'];
+                    $car_vat_price = $productInnerData['vat'];
+                    $total_discount = $productInnerData['total_discount'];
+                    $total_discount_vat = $productInnerData['total_discount_vat'];
+                    $car_price = $productInnerData['total'];
                 }
                 
                 $product = Product::find($product_id);
@@ -1049,12 +1048,10 @@ class BookingController extends Controller
                 $paymentController = new PaymentController();
                 $paymentInnerDetails =  $paymentController->executeEtisalatPayment($customRequest, $lang);
                 
-                $paymentInnerResponse = $this->extractResponsePayload($paymentInnerDetails);
-                if(!empty($paymentInnerResponse['data'])){
-                    $paymentInnerData = $paymentInnerResponse['data'];
-                    $transactionData = $paymentInnerData['Transaction'] ?? [];
-                    $payment_url = !empty($transactionData['PaymentPortal']) ? $transactionData['PaymentPortal'] : "";
-                    $transaction_id = !empty($transactionData['TransactionID']) ? $transactionData['TransactionID'] : "";
+                if($paymentInnerDetails->original['data']){
+                    $paymentInnerData = $paymentInnerDetails->original['data'];
+                    $payment_url = !empty($paymentInnerData['Transaction']['PaymentPortal']) ? $paymentInnerData['Transaction']['PaymentPortal'] : "";
+                    $transaction_id = !empty($paymentInnerData['Transaction']['TransactionID']) ? $paymentInnerData['Transaction']['TransactionID'] : "";
                 }
             }
             
@@ -1611,12 +1608,11 @@ class BookingController extends Controller
             $webContentController = new WebContentController();
             $productInnerDetails =  $webContentController->getWebProductInnerContent($lang);
             
-            $productInnerResponse = $this->extractResponsePayload($productInnerDetails);
-            if(!empty($productInnerResponse['data'])){
-                $productInnerData = $productInnerResponse['data'];
-                $productListData['services'] = $productInnerData['services'] ?? "";
-                $productListData['telephone_number'] = $productInnerData['telephone_number'] ?? "";
-                $productListData['whatsapp'] = $productInnerData['whatsapp'] ?? "";
+            if($productInnerDetails->original['data']){
+                $productInnerData = $productInnerDetails->original['data'];
+                $productListData['services'] = $productInnerData['services'];
+                $productListData['telephone_number'] = $productInnerData['telephone_number'];
+                $productListData['whatsapp'] = $productInnerData['whatsapp'];
             }else{
                 $productListData['services'] = "";
                 $productListData['telephone_number'] = "";
@@ -1630,9 +1626,8 @@ class BookingController extends Controller
         $webContentController = new WebContentController();
         $VehicleMeta =  $webContentController->getWebMetaDeta('vehicle-listing',$lang);
         
-        $vehicleMetaResponse = $this->extractResponsePayload($VehicleMeta);
-        if(!empty($vehicleMetaResponse['data'])){
-            $metaData = $vehicleMetaResponse['data'];
+        if($VehicleMeta->original['data']){
+            $metaData = $VehicleMeta->original['data'];
         }else{
             $metaData = [];
         }    
@@ -1643,9 +1638,8 @@ class BookingController extends Controller
         $productInnerDetails =  $webContentController->getWebProductInnerContent($lang);
         
         $locations = [];
-        $productInnerResponse = $this->extractResponsePayload($productInnerDetails);
-        if(!empty($productInnerResponse['data'])){
-            $productInnerData = $productInnerResponse['data'];
+        if($productInnerDetails->original['data']){
+            $productInnerData = $productInnerDetails->original['data'];
             $locations = $productInnerData['locations'];
         }else{
             $locations = [];
@@ -1656,9 +1650,8 @@ class BookingController extends Controller
 
         $car_brands = $CatalogController->catalogsMenuList($lang, 'car_brands', "", 0, null);
         $brandsList = [];
-        $brandsResponse = $this->extractResponsePayload($car_brands);
-        if(!empty($brandsResponse['data'])){
-            $brandsList = $brandsResponse['data'];
+        if($car_brands->original['data']){
+            $brandsList = $car_brands->original['data'];
         }
                             
         return response()->json([
@@ -2166,39 +2159,6 @@ class BookingController extends Controller
         return $userName;
     }
 
-    /**
-     * Safely normalize a controller response or response-like object into an array.
-     */
-    private function extractResponsePayload($response): array
-    {
-        if (is_array($response)) {
-            return $response;
-        }
-
-        if ($response instanceof \Illuminate\Http\JsonResponse) {
-            $data = $response->getData(true);
-            return is_array($data) ? $data : [];
-        }
-
-        if (is_object($response) && property_exists($response, 'original')) {
-            $data = $response->original;
-
-            if ($data instanceof \Illuminate\Http\JsonResponse) {
-                $data = $data->getData(true);
-            }
-
-            if (is_array($data)) {
-                return $data;
-            }
-
-            if (is_object($data)) {
-                return (array) $data;
-            }
-        }
-
-        return [];
-    }
-    
     public function getImageUrl($image_path)
     {
         $image_path = Storage::url($image_path);
