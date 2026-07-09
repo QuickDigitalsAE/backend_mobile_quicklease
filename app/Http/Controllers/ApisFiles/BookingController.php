@@ -11,6 +11,7 @@ use App\Models\Product;
 use App\Models\PromoCode;
 use App\Models\Catalog;
 use App\Models\UserActivityLog;
+use App\Models\PeopleVisit;
 use App\Models\ProductCoverage;
 use App\Models\ProductCoverageTranslation;
 use App\Models\ProductRelatedCoverage;
@@ -1343,6 +1344,7 @@ class BookingController extends Controller
         $price_type = request()->query('price_type');
         $car_types  = request()->query('car_types');
         $featured   = request()->query('featured');
+        $year       = request()->query('year');
         $min        = request()->query('min');
         $max        = request()->query('max');
         $specs      = request()->query('specs');
@@ -1381,6 +1383,10 @@ class BookingController extends Controller
         
         if ($featured !== null && $featured !== 0) {
             $productQuery->where('featured', $featured);
+        }
+
+        if (request()->filled('year') && $year !== null ) {
+            $productQuery->where('year', $year);
         }
         
         if ($specs !== null && is_array($specs)) {
@@ -1544,6 +1550,8 @@ class BookingController extends Controller
             } elseif($specification_auto == 3) {
                 $productListData['specification'] = 'Basic Option';
             }
+
+            $PeopleVisitdCount = PeopleVisit::getVisitCount($product_slug);
                 
             // Handle image URLs for primary fields
             $productListData['id'] = $id;
@@ -1584,6 +1592,7 @@ class BookingController extends Controller
             $productListData['pay_now_discount'] = $pay_now_percentage;
             $productListData['pay_now_amount'] = $pay_now_amount;
             $productListData['total_price'] = $total_price;
+            $productListData['people_visited'] = $PeopleVisitdCount;
             $productListData['main_image'] = $product->main_image ? $this->getImageUrl($product->main_image) : null;
             
             $car_images = json_decode($product->car_images) ?? null;
@@ -1640,7 +1649,7 @@ class BookingController extends Controller
         // Fetch Function
         $CatalogController = new CatalogController();
 
-        $car_brands = $CatalogController->catalogsMenuList($lang, 'car_brands');
+        $car_brands = $CatalogController->catalogsMenuList($lang, 'car_brands', "", 0, null);
         $brandsList = [];
         if($car_brands->original['data']){
             $brandsList = $car_brands->original['data'];

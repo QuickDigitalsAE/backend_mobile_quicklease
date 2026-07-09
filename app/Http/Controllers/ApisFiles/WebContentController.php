@@ -10,6 +10,7 @@ use App\Http\Controllers\ApisFiles\ProductsController;
 use App\Http\Controllers\ApisFiles\CatalogController;
 use App\Http\Controllers\ApisFiles\GoogleReviewController;
 use Illuminate\Http\Request;
+use App\Models\PeopleVisit;
 use App\Models\WebContent;
 use App\Models\WebContentTranslation;
 use Illuminate\Support\Facades\DB;
@@ -161,6 +162,8 @@ class WebContentController extends Controller
             }
             
             $page_id = $webContent->id;
+
+            $PeopleVisitdCount = PeopleVisit::getVisitCount('home');
             
             // Get translation based on language or default 'en' based
             $translations = WebContentTranslation::where('web_content_id', $page_id)
@@ -173,6 +176,7 @@ class WebContentController extends Controller
             $translateArray = isset($translations[$lang]) ? json_decode($translations[$lang]->translated_value, true) : json_decode($translations['en']->translated_value, true);
             $defaultTranslatedData = isset($translations['en']) ? json_decode($translations['en']->translated_value, true) : [];
 
+            $translateArray['people_visited'] = $PeopleVisitdCount;
             $translateArray['sec_three_image'] = $webContent->sec_three_image ? $this->getImageUrl($webContent->sec_three_image) : null;
             $translateArray['sec_six_image'] = $webContent->sec_six_image ? $this->getImageUrl($webContent->sec_six_image) : null;
             $translateArray['sec_seven_image'] = $webContent->sec_seven_image ? $this->getImageUrl($webContent->sec_seven_image) : null;
@@ -694,6 +698,8 @@ class WebContentController extends Controller
             }
             
             $page_id = $webContent->id;
+
+            $PeopleVisitdCount = PeopleVisit::getVisitCount('about-us');
             
             // Get translation based on language or default 'en' based
             $translations = WebContentTranslation::where('web_content_id', $page_id)
@@ -705,7 +711,8 @@ class WebContentController extends Controller
             // Decode JSON translations
             $tranlateArray = isset($translations[$lang]) ? json_decode($translations[$lang]->translated_value, true) : json_decode($translations['en']->translated_value, true);
             $defaultTranslatedData = isset($translations['en']) ? json_decode($translations['en']->translated_value, true) : [];
-    
+
+            $tranlateArray['people_visited'] = $PeopleVisitdCount;
             // Handle image URLs for primary fields
             $tranlateArray['banner'] = $webContent->banner ? $this->getImageUrl($webContent->banner) : null;
     
@@ -952,6 +959,8 @@ class WebContentController extends Controller
             }
             
             $page_id = $webContent->id;
+
+            $PeopleVisitdCount = PeopleVisit::getVisitCount('partners');
             
             // Get translation based on language or default 'en' based
             $translations = WebContentTranslation::where('web_content_id', $page_id)
@@ -963,7 +972,8 @@ class WebContentController extends Controller
             // Decode JSON translations
             $tranlateArray = isset($translations[$lang]) ? json_decode($translations[$lang]->translated_value, true) : json_decode($translations['en']->translated_value, true);
             $defaultTranslatedData = isset($translations['en']) ? json_decode($translations['en']->translated_value, true) : [];
-    
+
+            $tranlateArray['people_visited'] = $PeopleVisitdCount;
             // Handle image URLs for primary fields
             $tranlateArray['banner'] = $webContent->banner ? $this->getImageUrl($webContent->banner) : null;
     
@@ -1122,6 +1132,8 @@ class WebContentController extends Controller
             if (!$webContent) {
                 return response()->json(['status' => 'false', 'message' => 'Faqs content not found'], Response::HTTP_NOT_FOUND);
             }
+
+            $PeopleVisitdCount = PeopleVisit::getVisitCount('faqs');
     
             // Fetch the translation for the given language
             $translation = WebContentTranslation::where('web_content_id', $webContent->id)
@@ -1141,7 +1153,8 @@ class WebContentController extends Controller
                     $translatedData = json_decode($defaultData->translated_value, true);
                 }    
             }
-    
+
+            $translatedData['people_visited'] = $PeopleVisitdCount;
             // Handle image URLs for primary fields
             $translatedData['banner'] = $webContent->banner ? $this->getImageUrl($webContent->banner) : null;
     
@@ -1243,6 +1256,8 @@ class WebContentController extends Controller
             if (!$webContent) {
                 return response()->json(['status' => 'false', 'message' => 'Videos not found'], Response::HTTP_NOT_FOUND);
             }
+
+            $PeopleVisitdCount = PeopleVisit::getVisitCount('video-testimonial');
     
             // Fetch the translation for the given language
             $translation = WebContentTranslation::where('web_content_id', $webContent->id)
@@ -1264,7 +1279,8 @@ class WebContentController extends Controller
                     $translatedData = json_decode($defaultData->translated_value, true);
                 }    
             }
-    
+
+            $translatedData['people_visited'] = $PeopleVisitdCount;
             // Handle image URLs for primary fields
             $translatedData['banner'] = $webContent->banner ? $this->getImageUrl($webContent->banner) : null;
             
@@ -1589,6 +1605,8 @@ class WebContentController extends Controller
             }
     
             $page_id = $webContent->id;
+
+            $PeopleVisitdCount = PeopleVisit::getVisitCount('corporate-lease');
             
             // Get translation based on language or default 'en' based
             $translations = WebContentTranslation::where('web_content_id', $page_id)
@@ -1600,7 +1618,8 @@ class WebContentController extends Controller
             // Decode JSON translations
             $translateArray = isset($translations[$lang]) ? json_decode($translations[$lang]->translated_value, true) : json_decode($translations['en']->translated_value, true);
             $defaultTranslatedData = isset($translations['en']) ? json_decode($translations['en']->translated_value, true) : [];
-    
+
+            $translateArray['people_visited'] = $PeopleVisitdCount;
             // Handle image URLs for primary fields
             $translateArray['banner'] = $webContent->banner ? $this->getImageUrl($webContent->banner) : null;
             $translateArray['sec_one_image'] = $webContent->sec_one_image ? $this->getImageUrl($webContent->sec_one_image) : null;
@@ -1795,6 +1814,8 @@ class WebContentController extends Controller
             }
     
             $page_id = $webContent->id;
+
+            $PeopleVisitdCount = PeopleVisit::getVisitCount('lease-to-own-page');
             
             // Get translation based on language or default 'en' based
             $translations = WebContentTranslation::where('web_content_id', $page_id)
@@ -1806,7 +1827,8 @@ class WebContentController extends Controller
             // Decode JSON translations
             $translateArray = isset($translations[$lang]) ? json_decode($translations[$lang]->translated_value, true) : json_decode($translations['en']->translated_value, true);
             $defaultTranslatedData = isset($translations['en']) ? json_decode($translations['en']->translated_value, true) : [];
-    
+
+            $translateArray['people_visited'] = $PeopleVisitdCount;
             // Handle image URLs for primary fields
             $translateArray['banner'] = $webContent->banner ? $this->getImageUrl($webContent->banner) : null;
             $translateArray['sec_one_image'] = $webContent->sec_one_image ? $this->getImageUrl($webContent->sec_one_image) : null;
@@ -2308,7 +2330,7 @@ class WebContentController extends Controller
             // Fetch Function
             $CatalogController = new CatalogController();
 
-            $car_brands = $CatalogController->catalogsMenuList($lang, 'car_brands');
+            $car_brands = $CatalogController->catalogsMenuList($lang, 'car_brands', '', 0, null);
             
             if($car_brands->original['data']){
                 $brandsList = $car_brands->original['data'];
@@ -2679,7 +2701,7 @@ class WebContentController extends Controller
             // Fetch Function
             $CatalogController = new CatalogController();
 
-            $car_brands = $CatalogController->catalogsMenuList('en', 'car_brands', '', 1);
+            $car_brands = $CatalogController->catalogsMenuList('en', 'car_brands', '', 1, null);
             
             if($car_brands->original['data']){
                 $brandsList = $car_brands->original['data'];

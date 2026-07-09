@@ -11,6 +11,7 @@ use App\Models\Catalog;
 use App\Models\Testimonial;
 use App\Models\TestimonialTranslation;
 use App\Models\ProductTranslation;
+use App\Models\PeopleVisit;
 use App\Models\CatalogTranslation;
 use App\Models\WebContent;
 use App\Models\WebContentTranslation;
@@ -154,16 +155,15 @@ class CatalogController extends Controller
     }
     
     // Fetch all menu list
-    public function catalogsMenuList($lang, $menu_type, $carIds = "", $is_mobile = 0)
+    public function catalogsMenuList($lang, $menu_type, $carIds = "", $is_mobile = 0, $type = null)
     {
         try {
             
             // Step 1: Get all Brands rows
             $catalogQuery = Catalog::where('type', '=', $menu_type)
                 ->where('catalog_status', '=', 1)
-                ->orderBy('created_at', 'ASC');
-
-            $catalogs = $catalogQuery->get();
+                ->orderBy('created_at', 'ASC')
+                ->get();
 
             if ($catalogs->isEmpty()) {
                 return response()->json([
@@ -173,17 +173,27 @@ class CatalogController extends Controller
                 ], 200);
             }
 
+            if ($type !== null && $type == 'our_locations') {
+                $carIds = [];
+            } elseif (!empty($carIds) && !is_array($carIds)) {
+                $carIds = array_filter(explode(',', $carIds));
+            }
+
             $catalogs_translations = [];
-            if(!empty($carIds)){
-                
-                if (!is_array($carIds)) {
-                    $carIds = array_filter(explode(',', $carIds));
-                }
-                
+            if (($type !== null && $type == 'our_locations') || !empty($carIds)) {
+            
                 // Step 2: Get related catalog IDs from products table
                 $catalogIdsFromProducts = DB::table('products')
-                    ->whereIn('id', $carIds)
                     ->select('catalog_id', 'additional_catalog_ids')
+                    ->when($type !== null && $type == 'our_locations', function ($query) {
+                        return $query->where('featured', 1)
+                                ->where('stock_status', 1)
+                                ->where('product_status', 1);
+                    }, function ($query) use ($carIds) {
+                        return $query->whereIn('id', $carIds)
+                                ->where('stock_status', 1)
+                                ->where('product_status', 1);
+                    })
                     ->get()
                     ->flatMap(function ($product) {
                         $ids = [];
@@ -212,7 +222,7 @@ class CatalogController extends Controller
                 // Step 3: Filter $catalogs based on IDs found in products table
                 $catalogs = $catalogs->whereIn('id', $catalogIdsFromProducts)->values();
                 
-            }    
+            }      
             
             if ((int) $is_mobile === 1) {
                 $catalogs = $catalogs->filter(function ($catalog) {
@@ -978,6 +988,7 @@ class CatalogController extends Controller
             $defualtTranslatedData = isset($translations['en']) ? json_decode($translations['en']->field_values, true) : [];
             
             $carIds = json_decode($catalog->car_ids, true); // Decode JSON
+            $type = $catalog->type;
             
             $parent_slug = $parent_title = $page_full_slug = "";
             if(!empty($catalog->parent_id) && $catalog->parent_id != null){
@@ -1026,9 +1037,9 @@ class CatalogController extends Controller
                             'brands'          => $brands
                         ]);    
                     
-                $catalogCarsFetch = $productController->applyProductFilter($request, $slug, $lang, $per_page, $carIds);
+                $catalogCarsFetch = $productController->applyProductFilter($request, $slug, $lang, $per_page, $carIds,$type);
             }else{
-                $catalogCarsFetch =  $productController->fetchCatalogCars($lang, $per_page, $carIds, false, true, $availability);
+                $catalogCarsFetch =  $productController->fetchCatalogCars($lang, $per_page, $carIds, false, true, $availability,$type);
             }
             
             if($catalogCarsFetch->original['data']){
@@ -1042,7 +1053,6 @@ class CatalogController extends Controller
             }
             
             $catalog_slug = $catalog->slug;
-            $type = $catalog->type;
             $new_style_page_type = $catalog->new_style_page_type;
             $page_full_slug .= $catalog_slug.'/';
             
@@ -1065,6 +1075,10 @@ class CatalogController extends Controller
                                                 : null;
             $translatedData['brand_logo'] = !empty($catalog->brand_logo) && $catalog->brand_logo != 'undefined' ? 
                                             $this->getImageUrl($catalog->brand_logo) : null;
+
+            $PeopleVisitdCount = PeopleVisit::getVisitCount($catalog_slug);
+
+            $translatedData['people_visited'] = $PeopleVisitdCount;                                                    
                                             
             // Process banner images
             if (isset($defualtTranslatedData['banner'])) {
@@ -1132,7 +1146,7 @@ class CatalogController extends Controller
             }
             
             // Fetch Function
-            $car_brands = $this->catalogsMenuList($lang, 'car_brands', $carIds);
+            $car_brands = $this->catalogsMenuList($lang, 'car_brands', $carIds, 0, $type);
             
             $brandsList = "";
             if(isset($car_brands->original['data'])){
@@ -1308,6 +1322,7 @@ class CatalogController extends Controller
             }
             
             $catalogId = $catalog->id;
+            $type = $catalog->type;
             $carIds = json_decode($catalog->car_ids, true); // Decode JSON
             
             $productController = new ProductsController();
@@ -1369,7 +1384,7 @@ class CatalogController extends Controller
             
             
             // Fetch Function
-            $car_brands = $this->catalogsMenuList($lang, 'car_brands', $carIds);
+            $car_brands = $this->catalogsMenuList($lang, 'car_brands', $carIds, 0, $type);
             
             $brandsList = "";
             if(isset($car_brands->original['data'])){

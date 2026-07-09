@@ -184,7 +184,7 @@ class ProductsController extends Controller
     {
         try {
             // Fetch products based on provided car IDs or get all products
-            $query = Product::where('product_status', '=', 1);
+            $query = Product::where('product_status', '=', 1)->where('stock_status','=',1);
             
             if($home_page == 1){
                 $query->where('show_on_home', '=', 1);
@@ -202,7 +202,6 @@ class ProductsController extends Controller
                     $query->whereNotNull('monthly_price')
                           ->where('monthly_price', '>', 0);
                 })
-                ->where('stock_status','=',1)
                 ->orderBy('created_at', 'DESC');
             }else{
                 $query->orderBy('created_at', 'DESC');
@@ -265,7 +264,9 @@ class ProductsController extends Controller
                 
                 $created_by_name = $this->getUserName($created_by);
                 $updated_by_name = $this->getUserName($updated_by);
-                
+
+                $PeopleVisitdCount = PeopleVisit::getVisitCount($product_slug);
+
                 // Handle image URLs for primary fields
                 $productListData['id'] = $id;
                 $productListData['created_by'] = $created_by_name;
@@ -302,7 +303,10 @@ class ProductsController extends Controller
                 $productListData['page_full_slug'] = $page_full_slug;
                 $productListData['slug'] = $product_slug;
                 $productListData['main_image'] = $product->main_image ? $this->getImageUrl($product->main_image) : null;
-                
+                $productListData['car_ids'] = $this->decodeJsonIds($product->car_ids);
+                $productListData['car_count'] = $this->safeCount($productListData['car_ids'] ?? null);
+                $productListData['people_visited'] = $PeopleVisitdCount;
+
                 $car_images = json_decode($product->car_images) ?? null;
                 // Process car images
                 if (!empty($car_images)) {
@@ -573,18 +577,20 @@ class ProductsController extends Controller
     }
     
     // Get Frontend all cars List related to the catalog
-    public function fetchCatalogCars($lang, $per_page = 0, $car_ids = [], $for_flexible = false , $for_catalog = false, $availability = null)
+    public function fetchCatalogCars($lang, $per_page = 0, $car_ids = [], $for_flexible = false , $for_catalog = false, $availability = null, $type = null)
     {
         try {
             $productQuery = Product::where('product_status', '=', 1)
                                 ->orderBy('stock_status', 'DESC');
             $perPage = request()->input('per_page', $per_page);
             
-            if($for_catalog && empty($car_ids)){
-                return response()->json(['status' => 'false', 'message' => 'array of the car list is empty', 'data' => []], 200);
-            }else if (!empty($car_ids)) {
+            if($type !== null && $type == 'our_locations' ){
+                $productQuery->where('featured', 1);
+            }else if(!empty($car_ids)) {
                 $productQuery->whereIn('id', $car_ids);
-            }
+            }else if($for_catalog && empty($car_ids)){
+                return response()->json(['status' => 'false', 'message' => 'array of the car list is empty', 'data' => []], 200);
+            } 
             
             if ($for_flexible) {
                 $productQuery->whereNotNull('flexible_cars_monthly_prices')
@@ -748,6 +754,10 @@ class ProductsController extends Controller
                 $relatedCarsData['main_image'] = $product->main_image ? $this->getImageUrl($product->main_image) : null;
                 $relatedCarsData['car_ids'] = $this->decodeJsonIds($product->car_ids);
                 $relatedCarsData['car_count'] = $this->safeCount($relatedCarsData['car_ids'] ?? null);
+
+                $PeopleVisitdCount = PeopleVisit::getVisitCount($product_slug);
+                
+                $relatedCarsData['people_visited'] = $PeopleVisitdCount;    
                 $relatedCarsData['groupedProperties'] = $fetchAllProperties;
                 
                 return $relatedCarsData;
@@ -1760,9 +1770,7 @@ class ProductsController extends Controller
                 $translatedData['google_reviews'] = [];
             }
 
-            $PeopleVisitdCount = PeopleVisit::where('slug', $product->slug)
-                ->where('visit_datetime', '>=', now()->subMinutes(30))
-                ->count();
+            $PeopleVisitdCount = PeopleVisit::getVisitCount($catalog_slug);
                 
             $translatedData['people_visited'] = $PeopleVisitdCount;
             
@@ -2160,7 +2168,7 @@ class ProductsController extends Controller
     }
     
     // Filter function for product section
-    public function applyProductFilter(Request $request, $slug, $lang, $per_page = 0, $carIds = [] )
+    public function applyProductFilter(Request $request, $slug, $lang, $per_page = 0, $carIds = [], $type = null )
     {
         try {
             $dataArray = [];
@@ -2191,9 +2199,11 @@ class ProductsController extends Controller
                 $productIdsFromBrands = array_unique($productIdsFromBrands);
             }
 
-            // Step 2: Apply the filters to the main product query.
+            if($type !== null && $type == 'our_locations' ){
+                $productQuery->where('featured', 1);
+            }
             // Filter by carIds. This assumes $carIds is already set from another part of your code.
-            if (!empty($carIds)) {
+            else if (!empty($carIds)) {
                 $productQuery->whereIn('id', $carIds);
             }
 
@@ -2215,7 +2225,7 @@ class ProductsController extends Controller
                 $productQuery->whereIn('specification_auto', $request->input('specs'));
             }
             
-            if ($request->filled('featured')) {
+            if ($request->filled('featured') && $type === null) {
                 $featured = $request->input('featured');
                 $productQuery->where('featured', $featured);
             }
@@ -2366,6 +2376,8 @@ class ProductsController extends Controller
                 $roundedPrices = array_map(function ($value) {
                     return round((float) $value);
                 }, $monthlyPrices);
+
+                $PeopleVisitdCount = PeopleVisit::getVisitCount($dt['slug']);    
                 
                 $dataArray = array_merge($dataArray,[
                     'id' => $id,
@@ -2398,6 +2410,7 @@ class ProductsController extends Controller
                     'main_image' => $dt['main_image'] ? $this->getImageUrl($dt['main_image']) : null,
                     'car_ids' => $this->decodeJsonIds($dt['car_ids'] ?? null),
                     'car_count' => $this->safeCount($this->decodeJsonIds($dt['car_ids'] ?? null)),
+                    'people_visited' => $PeopleVisitdCount,
                     'groupedProperties' => $fetchAllProperties
                 ]);
                 
