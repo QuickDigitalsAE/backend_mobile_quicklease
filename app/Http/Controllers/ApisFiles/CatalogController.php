@@ -160,7 +160,7 @@ class CatalogController extends Controller
         try {
             
             // Step 1: Get all Brands rows
-            $catalogQuery = Catalog::where('type', '=', $menu_type)
+            $catalogs = Catalog::where('type', '=', $menu_type)
                 ->where('catalog_status', '=', 1)
                 ->orderBy('created_at', 'ASC')
                 ->get();
@@ -222,7 +222,7 @@ class CatalogController extends Controller
                 // Step 3: Filter $catalogs based on IDs found in products table
                 $catalogs = $catalogs->whereIn('id', $catalogIdsFromProducts)->values();
                 
-            }      
+            }    
             
             if ((int) $is_mobile === 1) {
                 $catalogs = $catalogs->filter(function ($catalog) {
