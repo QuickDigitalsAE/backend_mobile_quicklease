@@ -222,7 +222,7 @@ class CatalogController extends Controller
                 // Step 3: Filter $catalogs based on IDs found in products table
                 $catalogs = $catalogs->whereIn('id', $catalogIdsFromProducts)->values();
                 
-            }    
+            }      
             
             if ((int) $is_mobile === 1) {
                 $catalogs = $catalogs->filter(function ($catalog) {
