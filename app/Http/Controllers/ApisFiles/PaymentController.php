@@ -45,7 +45,7 @@ class PaymentController extends Controller
         $terminal = '0000';
         $apiUrl = 'https://demo-ipg.ctdev.comtrust.ae:2443';
         $returnPath = 'https://mobile-api.quicklease.ae/epg-redirect';
-        $callBackUrl = 'https://mobile-api.quicklease.ae/callback/en/';
+        $callBackUrl = 'https://mobile-api.quicklease.ae/api/callback/en/';
 
         $caBundlePath = storage_path('certs/ipg-ca-bundle.pem');
 
