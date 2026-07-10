@@ -1058,6 +1058,8 @@ class BookingController extends Controller
                     $payment_portal = !empty($paymentInnerData['payment_portal']) ? $paymentInnerData['payment_portal'] : "";
                     
                     $authentication_token = !empty($paymentInnerData['authentication_token']) ? $paymentInnerData['authentication_token'] : "";
+
+                    $callback_url = !empty($paymentInnerData['callback_url']) ? $paymentInnerData['callback_url'] : "";
                 }
             }
             
@@ -1133,6 +1135,7 @@ class BookingController extends Controller
                             'payment_url' => $payment_url,
                             'payment_portal' => $payment_portal,
                             'authentication_token' => $authentication_token,
+                            'callback_url' => $callback_url
                         ]
                     ], 200);
 
