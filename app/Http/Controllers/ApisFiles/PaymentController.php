@@ -256,9 +256,11 @@ class PaymentController extends Controller
             ], 500);
         }
 
-        $basicAuthorization = 'Basic ' . base64_encode(
-            $username . ':' . $password
-        );
+        $clientHeaders = [
+            'Content-Type' => 'application/json; charset=utf-8',
+            'Accept'       => 'application/json',
+            'Authorization'=> 'Basic ' . base64_encode($username . ':' . $password),
+        ];
 
         /*
         |--------------------------------------------------------------------------
@@ -281,11 +283,7 @@ class PaymentController extends Controller
         ];
 
         $clientOptions = [
-            'headers' => [
-                'Content-Type'  => 'application/json; charset=utf-8',
-                'Accept'        => 'application/json',
-                'Authorization' => $basicAuthorization,
-            ],
+            'headers' => $clientHeaders,
             'connect_timeout' => 30,
             'timeout'         => 60,
             'http_errors'     => false,
@@ -515,12 +513,12 @@ class PaymentController extends Controller
         // $ETISALAT_API_URL = config('app.etisalat_api_url');
         // $ETISALAT_RETURN_PATH = config('app.etisalat_return_path');
         
-        // Concatenate in the format: username:password
-        $credentials = $ETISALAT_USER . ':' . $ETISALAT_PASS;
-        
-        // Encode to Base64
-        $base64Credentials = base64_encode($credentials);
-        
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
+            'Authorization' => 'Basic ' . base64_encode($ETISALAT_USER . ':' . $ETISALAT_PASS)
+        ];
+
         $client = new Client();
         $response = $client->post($ETISALAT_API_URL, [
             'json' => [
@@ -530,11 +528,7 @@ class PaymentController extends Controller
                 ]
             ],
             'verify' => false, // only in demo
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
-                'Authorization' => 'Basic '.$base64Credentials
-            ],
+            'headers' => $headers,
         ]);
 
         $result = json_decode($response->getBody(), true);
