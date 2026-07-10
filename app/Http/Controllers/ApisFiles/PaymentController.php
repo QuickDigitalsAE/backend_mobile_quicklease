@@ -15,473 +15,93 @@ use App\Mail\PaymentMail;
 
 class PaymentController extends Controller
 {
-    // public function executeEtisalatPayment(Request $request, $lang)
-    // {
-
-    //     $ETISALAT_MERCHANT_ID = '800022000';
-    //     $ETISALAT_CUSTOMER = 'Demo Merchant';
-    //     $ETISALAT_USER = 'Demo_fY9c';
-    //     $ETISALAT_PASS = 'Comtrust@20182018';
-    //     $ETISALAT_STORE = '0000';
-    //     $ETISALAT_TERMINAL = '0000';
-    //     $ETISALAT_API_URL = 'https://demo-ipg.ctdev.comtrust.ae:2443';
-    //     $ETISALAT_RETURN_PATH = 'https://mobile-api.quicklease.ae/epg-redirect';
-
-    //     $ETISALAT_GENERATE_TOKEN_URL = $ETISALAT_API_URL . '/GenerateToken';
-    //     $ETISALAT_REGISTRATION_URL = $ETISALAT_API_URL . '/Registration';
-        
-    //     $caBundlePath = storage_path('certs/ipg-ca-bundle.pem');
-        
-        
-    //     // $ETISALAT_CUSTOMER = config('app.etisalat_customer');
-    //     // $ETISALAT_USER = config('app.etisalat_user');
-    //     // $ETISALAT_PASS = config('app.etisalat_pass');
-    //     // $ETISALAT_API_URL = config('app.etisalat_api_url');
-    //     // $ETISALAT_STORE = 'eCommerce';
-    //     // $ETISALAT_TERMINAL = 'eCommerce';
-    //     // $ETISALAT_RETURN_PATH = 'https://mobile-api.quicklease.ae/epg-redirect';
-        
-    //     $amount = $request->input('amount');
-    //     $order_number = $request->input('order_number');
-    //     $booking_id = $request->input('booking_id');
-    //     $encryptedBookingId = Crypt::encryptString($booking_id);
-    //     $currency = $request->input('currency', 'AED');
-
-    //     if (empty($booking_id)) {
-    //         return response()->json([
-    //             'status' => false,
-    //             'message' => 'Booking ID is required',
-    //             'data' => []
-    //         ], 422);
-    //     }
-
-    //     $booking = Booking::find($booking_id);
-
-    //     if (!$booking) {
-    //         return response()->json([
-    //             'status' => false,
-    //             'message' => 'Booking not found',
-    //             'data' => []
-    //         ], 404);
-    //     }
-
-    //     if (empty($ETISALAT_USER) || empty($ETISALAT_PASS)) {
-    //         return response()->json([
-    //             'status' => false,
-    //             'message' => 'Gateway credentials are not configured',
-    //             'data' => []
-    //         ], 500);
-    //     }
-
-    //     $base64Credentials = base64_encode($ETISALAT_USER . ':' . $ETISALAT_PASS);
-
-    //     $generateTokenPayload = [
-    //         "GenerateToken" => [
-    //             "Currency" => $currency,
-    //             "ReturnPath" => $ETISALAT_RETURN_PATH,
-    //             "TransactionHint" => "CPT:Y;VCC:Y;",
-    //             "OrderID" => $order_number,
-    //             "Channel" => "Web",
-    //             "Amount" => $amount,
-    //             "Customer" => $ETISALAT_CUSTOMER,
-    //             "Store" => $ETISALAT_STORE,
-    //             "Terminal" => $ETISALAT_TERMINAL,
-    //             "Language" => $lang,
-    //             "OrderName" => "Car Rental Paybill",
-    //             "UserName" => $ETISALAT_USER,
-    //             "Password" => $ETISALAT_PASS,
-    //             "MerchantID" => $ETISALAT_MERCHANT_ID,
-    //         ]
-    //     ];
-
-    //     $registrationPayload = [
-    //         "Registration" => [
-    //             "Currency" => $currency,
-    //             "ReturnPath" => $ETISALAT_RETURN_PATH,
-    //             "TransactionHint" => "CPT:Y;VCC:Y;",
-    //             "OrderID" => $order_number,
-    //             "Channel" => "Web",
-    //             "Amount" => $amount,
-    //             "Customer" => $ETISALAT_CUSTOMER,
-    //             "Store" => $ETISALAT_STORE,
-    //             "Terminal" => $ETISALAT_TERMINAL,
-    //             "Language" => $lang,
-    //             "OrderName" => "Car Rental Paybill",
-    //             "UserName" => $ETISALAT_USER,
-    //             "Password" => $ETISALAT_PASS,
-    //             "MerchantID" => $ETISALAT_MERCHANT_ID
-    //         ]
-    //     ];
-
-    //     try {
-    //         $client = new Client();
-
-    //         $tokenResponse = $client->post($ETISALAT_GENERATE_TOKEN_URL, [
-    //             'json' => $generateTokenPayload,
-    //             'verify' => $caBundlePath, // Disable SSL verification for testing (not recommended in production)
-    //             'headers' => [
-    //                 'Content-Type' => 'application/json',
-    //                 'Accept' => 'application/json',
-    //                 'Authorization' => 'Basic '.$base64Credentials
-    //             ],
-    //         ]);
-
-    //         $tokenResult = json_decode($tokenResponse->getBody(), true) ?: [];
-    //         $authenticationToken = data_get($tokenResult, 'Transaction.AuthenticationToken')
-    //             ?: data_get($tokenResult, 'AuthenticationToken');
-    //         $tokenTransactionId = data_get($tokenResult, 'Transaction.TransactionID')
-    //             ?: data_get($tokenResult, 'TransactionID');
-    //         $tokenMessage = $this->extractGatewayMessage($tokenResult) ?: 'Failed to generate payment token';
-
-    //         if (empty($authenticationToken)) {
-    //             return response()->json([
-    //                 'status' => false,
-    //                 'message' => $tokenMessage,
-    //                 'data' => $tokenResult
-    //             ], 400);
-    //         }
-
-    //         $registrationPayload['Registration']['AuthenticationToken'] = $authenticationToken;
-    //         if (!empty($tokenTransactionId)) {
-    //             $registrationPayload['Registration']['TransactionID'] = $tokenTransactionId;
-    //         }
-
-    //         $response = $client->post($ETISALAT_REGISTRATION_URL, [
-    //             'json' => $registrationPayload,
-    //             'verify' => $caBundlePath, // Disable SSL verification for testing (not recommended in production)
-    //             'headers' => [
-    //                 'Content-Type' => 'application/json',
-    //                 'Accept' => 'application/json',
-    //                 'Authorization' => 'Basic '.$base64Credentials
-    //             ],
-    //         ]);
-
-    //         $result = json_decode($response->getBody(), true) ?: [];
-    //         $transactionId = data_get($result, 'Transaction.TransactionID')
-    //             ?: data_get($result, 'TransactionID')
-    //             ?: $tokenTransactionId;
-    //         $paymentUrl = data_get($result, 'Transaction.PaymentPortal')
-    //             ?: data_get($result, 'PaymentPortal')
-    //             ?: data_get($result, 'payment_url')
-    //             ?: '';
-    //         $normalizedTransaction = $result['Transaction'] ?? [];
-    //         $normalizedTransaction['TransactionID'] = $transactionId;
-    //         if (!empty($paymentUrl)) {
-    //             $normalizedTransaction['PaymentPortal'] = $paymentUrl;
-    //         }
-
-    //         if (empty($transactionId)) {
-    //             return response()->json([
-    //                 'status' => false,
-    //                 'message' => $this->extractGatewayMessage($result) ?: 'Failed to create payment registration',
-    //                 'data' => $result
-    //             ], 400);
-    //         }
-
-    //         $booking->transaction_id = $transactionId;
-    //         $booking->save();
-
-    //         return response()->json([
-    //             'status' => true,
-    //             'message' => $this->extractGatewayMessage($result) ?: 'Payment initiated successfully',
-    //             'data' => [
-    //                 'booking_id' => $booking_id,
-    //                 'order_number' => $order_number,
-    //                 'transaction_id' => $transactionId,
-    //                 'authenticationToken' => $authenticationToken,
-    //                 'merchant_user_name' => $ETISALAT_USER,
-    //                 'baseUrl' => $ETISALAT_API_URL,
-    //                 'callbackUrl' => $ETISALAT_RETURN_PATH,
-    //                 'amount' => $amount,
-    //                 'currency' => $currency,
-    //                 'payment_url' => $paymentUrl,
-    //                 'Transaction' => $normalizedTransaction,
-    //                 'gateway_response' => $result,
-    //                 'encrypted_booking_id' => $encryptedBookingId,
-    //             ]
-    //         ], 200);
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'status' => false,
-    //             'message' => $e->getMessage(),
-    //             'data' => []
-    //         ], 400);
-    //     }
-    // }
-
     public function executeEtisalatPayment(Request $request, $lang)
     {
-        $request->validate([
-            'booking_id'   => ['required', 'integer', 'exists:bookings,id'],
-            'order_number' => ['required', 'string', 'max:100'],
-            'amount'       => ['required', 'numeric', 'min:0.01'],
-            'currency'     => ['nullable', 'string', 'size:3'],
-        ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Etisalat EPG Configuration
-        |--------------------------------------------------------------------------
-        |
-        | Sandbox endpoint:
-        | https://demo-ipg.ctdev.comtrust.ae:2443
-        |
-        | Production endpoint:
-        | https://ipg.comtrust.ae:2443
-        |
-        */
-
-        $merchantId = '800022000';
-        $customer = 'Demo Merchant';
-        $username = 'Demo_fY9c';
-        $password = 'Comtrust@20182018';
-        $store = '0000';
-        $terminal = '0000';
-        $apiUrl = 'https://demo-ipg.ctdev.comtrust.ae:2443';
-        $returnPath = 'https://mobile-api.quicklease.ae/epg-redirect';
-
+        $ETISALAT_CUSTOMER = 'Demo Merchant';
+        $ETISALAT_USER = 'Demo_fY9c';
+        $ETISALAT_PASS = 'Comtrust@20182018';
+        $ETISALAT_STORE = '0000';
+        $ETISALAT_TERMINAL = '0000';
+        $ETISALAT_API_URL = 'https://demo-ipg.ctdev.comtrust.ae:2443';
+        
         $caBundlePath = storage_path('certs/ipg-ca-bundle.pem');
+        
+        // $ETISALAT_CUSTOMER = config('app.etisalat_customer');
+        // $ETISALAT_USER = config('app.etisalat_user');
+        // $ETISALAT_PASS = config('app.etisalat_pass');
+        // $ETISALAT_API_URL = config('app.etisalat_api_url');
+        // $ETISALAT_STORE = 'eCommerce';
+        // $ETISALAT_TERMINAL = 'eCommerce';
+        $ETISALAT_RETURN_PATH = 'https://mobile-api.quicklease.ae/epg-redirect';
+        
+        $amount = $request->input('amount');
+        $order_number = $request->input('order_number');
+        $booking_id = $request->input('booking_id');
+        $encryptedBookingId = Crypt::encryptString($booking_id);
 
-        $bookingId  = (int) $request->input('booking_id');
-        $orderId    = trim((string) $request->input('order_number'));
-        $currency   = strtoupper($request->input('currency', 'AED'));
-        $amount     = number_format((float) $request->input('amount'), 2, '.', '');
-        $booking    = Booking::findOrFail($bookingId);
-
-        if (empty($username) || empty($password)) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Etisalat gateway credentials are not configured.',
-                'data'    => [],
-            ], 500);
-        }
-
-        $clientHeaders = [
-            'Content-Type' => 'application/json; charset=utf-8',
-            'Accept'       => 'application/json',
-            'Authorization'=> 'Basic ' . base64_encode($username . ':' . $password),
+        $data = [
+            "Registration" => [
+                "Currency" => "AED",
+                "ReturnPath" => $ETISALAT_RETURN_PATH,
+                "TransactionHint" => "CPT:Y;VCC:Y;",
+                "OrderID" => $order_number,
+                "Channel" => "Web",
+                "Amount" => $amount,
+                "Customer" => $ETISALAT_CUSTOMER,
+                "Store" => $ETISALAT_STORE,
+                "Terminal" => $ETISALAT_TERMINAL,
+                "Language" => $lang,
+                "OrderName" => "Car Rental Paybill",
+                "UserName" => $ETISALAT_USER,
+                "Password" => $ETISALAT_PASS
+            ]
         ];
-
-        /*
-        |--------------------------------------------------------------------------
-        | Shared transaction details
-        |--------------------------------------------------------------------------
-        */
-
-        $transactionData = [
-            'Currency'        => $currency,
-            'ReturnPath'      => $returnPath,
-            'TransactionHint' => 'CPT:Y;VCC:Y;',
-            'OrderID'         => $orderId,
-            'Channel'         => 'Web',
-            'Amount'          => $amount,
-            'Customer'        => $customer,
-            'Store'           => $store,
-            'Terminal'        => $terminal,
-            'Language'        => in_array($lang, ['en', 'ar'], true) ? $lang : 'en',
-            'OrderName'       => 'Car Rental Mobile Paybill',
-        ];
-
-        $clientOptions = [
-            'headers' => $clientHeaders,
-            'connect_timeout' => 30,
-            'timeout'         => 60,
-            'http_errors'     => false,
-        ];
-
-        /*
-        |--------------------------------------------------------------------------
-        | SSL Verification
-        |--------------------------------------------------------------------------
-        */
-
-        if (file_exists($caBundlePath)) {
-            $clientOptions['verify'] = $caBundlePath;
-        } else {
-            // Sandbox only. Production mein certificate verification disable na karein.
-            $clientOptions['verify'] = app()->environment('production');
-        }
-
+    
         try {
-            $client = new Client($clientOptions);
-
-            /*
-            |--------------------------------------------------------------------------
-            | Step 1: Generate Token
-            |--------------------------------------------------------------------------
-            */
-
-            $generateTokenPayload = [
-                'GenerateToken' => array_merge($transactionData, [
-                    'UserName'  => $username,
-                    'Password'  => $password,
-                    'MerchantID' => $merchantId,
-                ]),
-            ];
-
-            $tokenResponse = $client->post($apiUrl, [
-                'json' => $generateTokenPayload,
+            $client = new Client();
+            
+            // Concatenate in the format: username:password
+            $credentials = $ETISALAT_USER . ':' . $ETISALAT_PASS;
+            
+            // Encode to Base64
+            $base64Credentials = base64_encode($credentials);
+            
+            $response = $client->post($ETISALAT_API_URL, [
+                'json' => $data,
+                'verify' => $caBundlePath, // Disable SSL verification for testing (not recommended in production)
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                    'Authorization' => 'Basic '.$base64Credentials
+                ],
             ]);
+            
+            $result = json_decode($response->getBody(), true);
 
-            $tokenResult = json_decode(
-                (string) $tokenResponse->getBody(),
-                true
-            ) ?: [];
-
-            $tokenHttpStatus = $tokenResponse->getStatusCode();
-
-            $authenticationToken =
-                data_get($tokenResult, 'Transaction.AuthenticationToken')
-                ?? data_get($tokenResult, 'AuthenticationToken')
-                ?? data_get($tokenResult, 'GenerateToken.AuthenticationToken');
-
-            $tokenTransactionId =
-                data_get($tokenResult, 'Transaction.TransactionID')
-                ?? data_get($tokenResult, 'TransactionID');
-
-            $tokenResponseCode =
-                data_get($tokenResult, 'Transaction.ResponseCode')
-                ?? data_get($tokenResult, 'ResponseCode');
-
-            if (
-                $tokenHttpStatus < 200 ||
-                $tokenHttpStatus >= 300 ||
-                empty($authenticationToken)
-            ) {
+            if (!empty($booking_id) && isset($result['Transaction']) && !empty($result['Transaction']['TransactionID'])) {
+                $transactionId = $result['Transaction']['TransactionID'] ?? null;
+                
+                $booking = Booking::find($booking_id);
+                $booking->transaction_id = $transactionId;
+                $booking->save();
+                
                 return response()->json([
-                    'status'  => false,
-                    'message' => $this->extractGatewayMessage($tokenResult)
-                        ?: 'Failed to generate Etisalat authentication token.',
-                    'data' => [
-                        'http_status'   => $tokenHttpStatus,
-                        'response_code' => $tokenResponseCode,
-                        'gateway'       => $tokenResult,
-                    ],
+                    'status' => true,
+                    'data' => $result
+                ],200);
+            } else {
+                // Fallback if TransactionID is missing
+                return response()->json([
+                    'status' => false,
+                    'data' => []
                 ], 400);
             }
-
-            /*
-            |--------------------------------------------------------------------------
-            | Step 2: Registration
-            |--------------------------------------------------------------------------
-            */
-
-            $registrationData = array_merge($transactionData, [
-                'AuthenticationToken' => $authenticationToken,
-            ]);
-
-            /*
-            * GenerateToken response mein TransactionID mila ho to Registration
-            * request mein forward kar diya jayega.
-            */
-            if (!empty($tokenTransactionId)) {
-                $registrationData['TransactionID'] = $tokenTransactionId;
-            }
-
-            $registrationPayload = [
-                'Registration' => $registrationData,
-            ];
-
-            $registrationResponse = $client->post($apiUrl, [
-                'json' => $registrationPayload,
-            ]);
-
-            $registrationResult = json_decode(
-                (string) $registrationResponse->getBody(),
-                true
-            ) ?: [];
-
-            $registrationHttpStatus = $registrationResponse->getStatusCode();
-
-            $registrationResponseCode =
-                data_get($registrationResult, 'Transaction.ResponseCode')
-                ?? data_get($registrationResult, 'ResponseCode');
-
-            $transactionId =
-                data_get($registrationResult, 'Transaction.TransactionID')
-                ?? data_get($registrationResult, 'TransactionID')
-                ?? $tokenTransactionId;
-
-            $paymentPortal =
-                data_get($registrationResult, 'Transaction.PaymentPortal')
-                ?? data_get($registrationResult, 'Transaction.PaymentPage')
-                ?? data_get($registrationResult, 'PaymentPortal')
-                ?? data_get($registrationResult, 'PaymentPage');
-
-            if (
-                $registrationHttpStatus < 200 ||
-                $registrationHttpStatus >= 300 ||
-                (string) $registrationResponseCode !== '0' ||
-                empty($transactionId) ||
-                empty($paymentPortal)
-            ) {
-                return response()->json([
-                    'status'  => false,
-                    'message' => $this->extractGatewayMessage($registrationResult)
-                        ?: 'Etisalat payment registration failed.',
-                    'data' => [
-                        'http_status'   => $registrationHttpStatus,
-                        'response_code' => $registrationResponseCode,
-                        'gateway'       => $registrationResult,
-                    ],
-                ], 400);
-            }
-
-            /*
-            |--------------------------------------------------------------------------
-            | Store Transaction ID
-            |--------------------------------------------------------------------------
-            */
-
-            $booking->transaction_id = $transactionId;
-            $booking->save();
-
-            /*
-            |--------------------------------------------------------------------------
-            | Frontend redirects customer to PaymentPortal
-            |--------------------------------------------------------------------------
-            */
-
+        } catch (\Exception $e) {
             return response()->json([
-                'status'  => true,
-                'message' => 'Payment initiated successfully.',
-                'data' => [
-                    'booking_id'          => $booking->id,
-                    'order_number'        => $orderId,
-                    'transaction_id'      => $transactionId,
-                    'authentication_token'=> $authenticationToken,
-                    'payment_url'         => $paymentPortal,
-                    'payment_portal'      => $paymentPortal,
-                    'amount'              => $amount,
-                    'currency'            => $currency,
-                    'callback_url'        => $returnPath,
-                    'encrypted_booking_id'=> Crypt::encryptString(
-                        (string) $booking->id
-                    ),
-                    'transaction'         => $registrationResult['Transaction']
-                        ?? $registrationResult,
-                ],
-            ], 200);
-        } catch (\GuzzleHttp\Exception\ConnectException $exception) {
-            report($exception);
-
-            return response()->json([
-                'status'  => false,
-                'message' => 'Unable to connect with Etisalat Payment Gateway.',
-                'data' => [
-                    'error' => $exception->getMessage(),
-                ],
-            ], 503);
-        } catch (\Throwable $exception) {
-            report($exception);
-
-            return response()->json([
-                'status'  => false,
-                'message' => 'Payment initialization failed.',
-                'data' => [
-                    'error' => $exception->getMessage(),
-                ],
-            ], 500);
+                'status' => false,
+                'message' => $e->getMessage(),
+                'data' => []
+            ], 400);
         }
     }
     
@@ -513,12 +133,12 @@ class PaymentController extends Controller
         // $ETISALAT_API_URL = config('app.etisalat_api_url');
         // $ETISALAT_RETURN_PATH = config('app.etisalat_return_path');
         
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Accept' => 'application/json',
-            'Authorization' => 'Basic ' . base64_encode($ETISALAT_USER . ':' . $ETISALAT_PASS)
-        ];
-
+        // Concatenate in the format: username:password
+        $credentials = $ETISALAT_USER . ':' . $ETISALAT_PASS;
+        
+        // Encode to Base64
+        $base64Credentials = base64_encode($credentials);
+        
         $client = new Client();
         $response = $client->post($ETISALAT_API_URL, [
             'json' => [
@@ -528,7 +148,11 @@ class PaymentController extends Controller
                 ]
             ],
             'verify' => false, // only in demo
-            'headers' => $headers,
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+                'Authorization' => 'Basic '.$base64Credentials
+            ],
         ]);
 
         $result = json_decode($response->getBody(), true);
