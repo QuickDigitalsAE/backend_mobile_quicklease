@@ -1050,8 +1050,14 @@ class BookingController extends Controller
                 
                 if($paymentInnerDetails->original['data']){
                     $paymentInnerData = $paymentInnerDetails->original['data'];
-                    $payment_url = !empty($paymentInnerData['Transaction']['PaymentPortal']) ? $paymentInnerData['Transaction']['PaymentPortal'] : "";
-                    $transaction_id = !empty($paymentInnerData['Transaction']['TransactionID']) ? $paymentInnerData['Transaction']['TransactionID'] : "";
+
+                    $transaction_id = !empty($paymentInnerData['transaction_id']) ? $paymentInnerData['transaction_id'] : "";
+
+                    $payment_url = !empty($paymentInnerData['payment_url']) ? $paymentInnerData['payment_url'] : "";
+
+                    $payment_portal = !empty($paymentInnerData['payment_portal']) ? $paymentInnerData['payment_portal'] : "";
+                    
+                    $authentication_token = !empty($paymentInnerData['authentication_token']) ? $paymentInnerData['authentication_token'] : "";
                 }
             }
             
@@ -1123,8 +1129,10 @@ class BookingController extends Controller
                         'data' => [
                             'booking_id' => $booking_id,
                             'order_number' => $orderNumber,
+                            'transaction_id' => $transaction_id,
                             'payment_url' => $payment_url,
-                            'transaction_id' => $transaction_id
+                            'payment_portal' => $payment_portal,
+                            'authentication_token' => $authentication_token,
                         ]
                     ], 200);
 
