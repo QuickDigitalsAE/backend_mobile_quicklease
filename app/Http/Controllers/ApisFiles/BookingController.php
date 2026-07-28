@@ -35,6 +35,8 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\BookingMail;
 use Carbon\Carbon;
+use Stripe\PaymentIntent;
+use Stripe\Stripe;
 
 class BookingController extends Controller
 {
@@ -1024,7 +1026,9 @@ class BookingController extends Controller
                             ->orderByRaw("FIELD(language, ?, 'en')", [$lang])
                             ->first();
                             
-            $product_title = $payment_url= $transaction_id = "";                
+            $product_title = $payment_url = $transaction_id = "";
+            $payment_intent_client_secret = null;
+            $payment_portal = $authentication_token = $callback_url = "";
             if(!empty($translation)){
                 $translatedData =  json_decode($translation->field_values, true);
                 $product_title = $translatedData['product_title'] ?? "";
@@ -1032,34 +1036,58 @@ class BookingController extends Controller
                 
             
             if($payment_type == 'pay_now'){
-                
-                if(!empty($partial_amount) && $partial_amount != 0){
-                    $total_price = $partial_amount;
+                $amountToCharge = !empty($partial_amount) && $partial_amount != 0
+                    ? $partial_amount
+                    : $grant_total;
+
+                $stripeSecretKey = env('STRIPE_SECRET_KEY');
+
+                if (!empty($stripeSecretKey) && class_exists(Stripe::class) && class_exists(PaymentIntent::class)) {
+                    try {
+                        Stripe::setApiKey($stripeSecretKey);
+
+                        $paymentIntent = PaymentIntent::create([
+                            'amount' => (int) round(((float) $amountToCharge) * 100),
+                            'currency' => 'aed',
+                            'automatic_payment_methods' => [
+                                'enabled' => true,
+                            ],
+                            'metadata' => [
+                                'booking_id' => (string) $booking_id,
+                                'order_number' => (string) $orderNumber,
+                            ],
+                        ]);
+
+                        $payment_intent_client_secret = $paymentIntent->client_secret;
+                    } catch (\Throwable $e) {
+                        Log::warning('Stripe PaymentIntent creation failed for booking store; falling back to old payment URL.', [
+                            'booking_id' => $booking_id,
+                            'order_number' => $orderNumber,
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
                 }
-                
-                // Create a request instance with the required values
-                $customRequest = new Request([
-                    'amount' => $total_price,
-                    'booking_id' => $booking_id,
-                    'order_number' => $orderNumber
-                ]);
-                
-                // Payment Controller
-                $paymentController = new PaymentController();
-                $paymentInnerDetails =  $paymentController->executeEtisalatPayment($customRequest, $lang);
-                
-                if($paymentInnerDetails->original['data']){
-                    $paymentInnerData = $paymentInnerDetails->original['data'];
 
-                    $transaction_id = !empty($paymentInnerData['transaction_id']) ? $paymentInnerData['transaction_id'] : "";
+                if (empty($payment_intent_client_secret)) {
+                    // Temporary fallback to the existing Etisalat flow.
+                    $customRequest = new Request([
+                        'amount' => $amountToCharge,
+                        'booking_id' => $booking_id,
+                        'order_number' => $orderNumber
+                    ]);
 
-                    $payment_url = !empty($paymentInnerData['payment_url']) ? $paymentInnerData['payment_url'] : "";
+                    $paymentController = new PaymentController();
+                    $paymentInnerDetails = $paymentController->executeEtisalatPayment($customRequest, $lang);
 
-                    $payment_portal = !empty($paymentInnerData['payment_portal']) ? $paymentInnerData['payment_portal'] : "";
-                    
-                    $authentication_token = !empty($paymentInnerData['authentication_token']) ? $paymentInnerData['authentication_token'] : "";
+                    if (!empty($paymentInnerDetails->original['data'])) {
+                        $paymentInnerData = $paymentInnerDetails->original['data'];
 
-                    $callback_url = !empty($paymentInnerData['callback_url']) ? $paymentInnerData['callback_url'] : "";
+                        $transaction_id = !empty($paymentInnerData['transaction_id']) ? $paymentInnerData['transaction_id'] : "";
+                        $payment_url = !empty($paymentInnerData['payment_url']) ? $paymentInnerData['payment_url'] : "";
+                        $payment_portal = !empty($paymentInnerData['payment_portal']) ? $paymentInnerData['payment_portal'] : "";
+                        $authentication_token = !empty($paymentInnerData['authentication_token']) ? $paymentInnerData['authentication_token'] : "";
+                        $callback_url = !empty($paymentInnerData['callback_url']) ? $paymentInnerData['callback_url'] : "";
+                    }
                 }
             }
             
@@ -1129,13 +1157,14 @@ class BookingController extends Controller
                         'status' => 'true',
                         'message' => $message,
                         'data' => [
-                            'booking_id' => $booking_id,
-                            'order_number' => $orderNumber,
-                            'transaction_id' => $transaction_id,
-                            'payment_url' => $payment_url,
-                            'payment_portal' => $payment_portal,
-                            'authentication_token' => $authentication_token,
-                            'callback_url' => $callback_url
+                        'booking_id' => $booking_id,
+                        'order_number' => $orderNumber,
+                        'transaction_id' => $transaction_id,
+                        'payment_url' => $payment_url,
+                        'payment_intent_client_secret' => $payment_intent_client_secret,
+                        'payment_portal' => $payment_portal,
+                        'authentication_token' => $authentication_token,
+                        'callback_url' => $callback_url
                         ]
                     ], 200);
 
