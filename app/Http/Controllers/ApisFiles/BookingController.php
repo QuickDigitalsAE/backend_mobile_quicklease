@@ -1098,6 +1098,7 @@ class BookingController extends Controller
                 }
 
                 if ($requested_payment_provider !== 'stripe' || empty($payment_intent_client_secret)) {
+                    
                     // Temporary fallback to the existing Etisalat flow.
                     $customRequest = new Request([
                         'amount' => $amountToCharge,
