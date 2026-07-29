@@ -1046,7 +1046,7 @@ class BookingController extends Controller
                 if ($requested_payment_provider === 'stripe' && !empty($stripeSecretKey)) {
                     try {
                         $stripeResponse = Http::asForm()
-                            ->withBasicAuth($stripeSecretKey, '')
+                            ->withToken($stripeSecretKey)
                             ->timeout(60)
                             ->post('https://api.stripe.com/v1/payment_intents', [
                                 'amount' => (int) round(((float) $amountToCharge) * 100),
