@@ -40,4 +40,8 @@ return [
         'api_key' => env('EXCHANGE_RATE_API_KEY'),
         'base' => env('EXCHANGE_RATE_BASE', 'AED'),
     ],
+
+    'stripe' => [
+        'secret' => env('STRIPE_SECRET_KEY'),
+    ],
 ];

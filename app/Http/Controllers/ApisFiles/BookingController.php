@@ -35,8 +35,6 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\BookingMail;
 use Carbon\Carbon;
-use Stripe\PaymentIntent;
-use Stripe\Stripe;
 
 class BookingController extends Controller
 {
@@ -1040,25 +1038,41 @@ class BookingController extends Controller
                     ? $partial_amount
                     : $grant_total;
 
-                $stripeSecretKey = env('STRIPE_SECRET_KEY');
+                $stripeSecretKey = config('services.stripe.secret', env('STRIPE_SECRET_KEY'));
 
-                if (!empty($stripeSecretKey) && class_exists(Stripe::class) && class_exists(PaymentIntent::class)) {
+                if (!empty($stripeSecretKey)) {
                     try {
-                        Stripe::setApiKey($stripeSecretKey);
+                        $stripeResponse = Http::asForm()
+                            ->withBasicAuth($stripeSecretKey, '')
+                            ->timeout(60)
+                            ->post('https://api.stripe.com/v1/payment_intents', [
+                                'amount' => (int) round(((float) $amountToCharge) * 100),
+                                'currency' => 'aed',
+                                'automatic_payment_methods[enabled]' => 'true',
+                                'metadata[booking_id]' => (string) $booking_id,
+                                'metadata[order_number]' => (string) $orderNumber,
+                            ]);
 
-                        $paymentIntent = PaymentIntent::create([
-                            'amount' => (int) round(((float) $amountToCharge) * 100),
-                            'currency' => 'aed',
-                            'automatic_payment_methods' => [
-                                'enabled' => true,
-                            ],
-                            'metadata' => [
-                                'booking_id' => (string) $booking_id,
-                                'order_number' => (string) $orderNumber,
-                            ],
-                        ]);
+                        if ($stripeResponse->successful()) {
+                            $stripeData = $stripeResponse->json();
+                            $payment_intent_client_secret = $stripeData['client_secret'] ?? null;
 
-                        $payment_intent_client_secret = $paymentIntent->client_secret;
+                            if (empty($payment_intent_client_secret)) {
+                                Log::warning('Stripe PaymentIntent created but client_secret is missing.', [
+                                    'booking_id' => $booking_id,
+                                    'order_number' => $orderNumber,
+                                    'response' => $stripeData,
+                                ]);
+                            }
+                        } else {
+                            Log::warning('Stripe PaymentIntent creation failed for booking store; falling back to old payment URL.', [
+                                'booking_id' => $booking_id,
+                                'order_number' => $orderNumber,
+                                'status' => $stripeResponse->status(),
+                                'response' => $stripeResponse->json(),
+                                'body' => $stripeResponse->body(),
+                            ]);
+                        }
                     } catch (\Throwable $e) {
                         Log::warning('Stripe PaymentIntent creation failed for booking store; falling back to old payment URL.', [
                             'booking_id' => $booking_id,
