@@ -1030,6 +1030,7 @@ class BookingController extends Controller
             $payment_intent_client_secret = null;
             $payment_portal = $authentication_token = $callback_url = "";
             $payment_provider = $requested_payment_provider === 'stripe' ? 'stripe' : 'etisalat';
+            $payment_provider_error = null;
             if(!empty($translation)){
                 $translatedData =  json_decode($translation->field_values, true);
                 $product_title = $translatedData['product_title'] ?? "";
@@ -1061,6 +1062,7 @@ class BookingController extends Controller
                             $payment_intent_client_secret = $stripeData['client_secret'] ?? null;
 
                             if (empty($payment_intent_client_secret)) {
+                                $payment_provider_error = 'Stripe PaymentIntent was created but client_secret is missing.';
                                 Log::warning('Stripe PaymentIntent created but client_secret is missing.', [
                                     'booking_id' => $booking_id,
                                     'order_number' => $orderNumber,
@@ -1071,15 +1073,22 @@ class BookingController extends Controller
                                 $payment_provider = 'stripe';
                             }
                         } else {
+                            $stripeError = $stripeResponse->json();
+                            $payment_provider_error =
+                                data_get($stripeError, 'error.message')
+                                ?: data_get($stripeError, 'message')
+                                ?: $stripeResponse->body()
+                                ?: 'Stripe PaymentIntent creation failed.';
                             Log::warning('Stripe PaymentIntent creation failed for booking store; falling back to old payment URL.', [
                                 'booking_id' => $booking_id,
                                 'order_number' => $orderNumber,
                                 'status' => $stripeResponse->status(),
-                                'response' => $stripeResponse->json(),
+                                'response' => $stripeError,
                                 'body' => $stripeResponse->body(),
                             ]);
                         }
                     } catch (\Throwable $e) {
+                        $payment_provider_error = $e->getMessage();
                         Log::warning('Stripe PaymentIntent creation failed for booking store; falling back to old payment URL.', [
                             'booking_id' => $booking_id,
                             'order_number' => $orderNumber,
@@ -1186,7 +1195,8 @@ class BookingController extends Controller
                         'payment_portal' => $payment_portal,
                         'authentication_token' => $authentication_token,
                         'callback_url' => $callback_url,
-                        'payment_provider' => $payment_provider
+                        'payment_provider' => $payment_provider,
+                        'payment_provider_error' => $payment_provider_error
                         ]
                     ], 200);
 
