@@ -913,6 +913,7 @@ class BookingController extends Controller
                 'pickup_date_time' => 'required|date_format:Y-m-d H:i',
                 'return_date_time' => 'required|date_format:Y-m-d H:i',
                 'coverages_extras' => 'required|array',
+                'payment_provider' => 'nullable|string|in:stripe,etisalat',
             ];
         
             // Create a validator instance with the request data and rules
@@ -949,6 +950,7 @@ class BookingController extends Controller
             $coverages_extras = $request->input('coverages_extras');
             $booking_page_slug = $request->input('booking_page_slug');
             $payment_type = $request->input('payment_type');
+            $requested_payment_provider = strtolower(trim((string) $request->input('payment_provider', 'etisalat')));
             $payment_status = $request->input('payment_status');
             $accept_terms = $request->input('accept_terms');
             $valid_driving_license = $request->input('valid_driving_license');
@@ -1027,7 +1029,7 @@ class BookingController extends Controller
             $product_title = $payment_url = $transaction_id = "";
             $payment_intent_client_secret = null;
             $payment_portal = $authentication_token = $callback_url = "";
-            $payment_provider = 'etisalat';
+            $payment_provider = $requested_payment_provider === 'stripe' ? 'stripe' : 'etisalat';
             if(!empty($translation)){
                 $translatedData =  json_decode($translation->field_values, true);
                 $product_title = $translatedData['product_title'] ?? "";
@@ -1041,7 +1043,7 @@ class BookingController extends Controller
 
                 $stripeSecretKey = config('services.stripe.secret', env('STRIPE_SECRET_KEY'));
 
-                if (!empty($stripeSecretKey)) {
+                if ($requested_payment_provider === 'stripe' && !empty($stripeSecretKey)) {
                     try {
                         $stripeResponse = Http::asForm()
                             ->withBasicAuth($stripeSecretKey, '')
@@ -1064,6 +1066,7 @@ class BookingController extends Controller
                                     'order_number' => $orderNumber,
                                     'response' => $stripeData,
                                 ]);
+                                $payment_provider = 'etisalat';
                             } else {
                                 $payment_provider = 'stripe';
                             }
@@ -1085,7 +1088,7 @@ class BookingController extends Controller
                     }
                 }
 
-                if (empty($payment_intent_client_secret)) {
+                if ($requested_payment_provider !== 'stripe' || empty($payment_intent_client_secret)) {
                     // Temporary fallback to the existing Etisalat flow.
                     $customRequest = new Request([
                         'amount' => $amountToCharge,
