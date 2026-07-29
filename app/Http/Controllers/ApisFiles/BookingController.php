@@ -1027,6 +1027,7 @@ class BookingController extends Controller
             $product_title = $payment_url = $transaction_id = "";
             $payment_intent_client_secret = null;
             $payment_portal = $authentication_token = $callback_url = "";
+            $payment_provider = 'etisalat';
             if(!empty($translation)){
                 $translatedData =  json_decode($translation->field_values, true);
                 $product_title = $translatedData['product_title'] ?? "";
@@ -1063,6 +1064,8 @@ class BookingController extends Controller
                                     'order_number' => $orderNumber,
                                     'response' => $stripeData,
                                 ]);
+                            } else {
+                                $payment_provider = 'stripe';
                             }
                         } else {
                             Log::warning('Stripe PaymentIntent creation failed for booking store; falling back to old payment URL.', [
@@ -1101,6 +1104,7 @@ class BookingController extends Controller
                         $payment_portal = !empty($paymentInnerData['payment_portal']) ? $paymentInnerData['payment_portal'] : "";
                         $authentication_token = !empty($paymentInnerData['authentication_token']) ? $paymentInnerData['authentication_token'] : "";
                         $callback_url = !empty($paymentInnerData['callback_url']) ? $paymentInnerData['callback_url'] : "";
+                        $payment_provider = 'etisalat';
                     }
                 }
             }
@@ -1178,7 +1182,8 @@ class BookingController extends Controller
                         'payment_intent_client_secret' => $payment_intent_client_secret,
                         'payment_portal' => $payment_portal,
                         'authentication_token' => $authentication_token,
-                        'callback_url' => $callback_url
+                        'callback_url' => $callback_url,
+                        'payment_provider' => $payment_provider
                         ]
                     ], 200);
 
