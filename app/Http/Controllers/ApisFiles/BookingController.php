@@ -1035,7 +1035,6 @@ class BookingController extends Controller
                 $translatedData =  json_decode($translation->field_values, true);
                 $product_title = $translatedData['product_title'] ?? "";
             }
-                
             
             if($payment_type == 'pay_now'){
                 $amountToCharge = !empty($partial_amount) && $partial_amount != 0
@@ -1188,16 +1187,16 @@ class BookingController extends Controller
                         'status' => 'true',
                         'message' => $message,
                         'data' => [
-                        'booking_id' => $booking_id,
-                        'order_number' => $orderNumber,
-                        'transaction_id' => $transaction_id,
-                        'payment_url' => $payment_url,
-                        'payment_intent_client_secret' => $payment_intent_client_secret,
-                        'payment_portal' => $payment_portal,
-                        'authentication_token' => $authentication_token,
-                        'callback_url' => $callback_url,
-                        'payment_provider' => $payment_provider,
-                        'payment_provider_error' => $payment_provider_error
+                            'booking_id' => $booking_id,
+                            'order_number' => $orderNumber,
+                            'transaction_id' => $transaction_id,
+                            'payment_url' => $payment_url,
+                            'payment_intent_client_secret' => $payment_intent_client_secret,
+                            'payment_portal' => $payment_portal,
+                            'authentication_token' => $authentication_token,
+                            'callback_url' => $callback_url,
+                            'payment_provider' => $payment_provider,
+                            'payment_provider_error' => $payment_provider_error
                         ]
                     ], 200);
 
