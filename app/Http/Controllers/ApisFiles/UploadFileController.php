@@ -51,7 +51,6 @@ class UploadFileController extends Controller
 
             $validator = Validator::make($request->all(), [
                 'folder_name' => 'required|string|max:100',
-                'page_type' => 'required|string|max:100',
                 'image' => [
                     'required',
                     'file',
@@ -89,8 +88,7 @@ class UploadFileController extends Controller
             }
 
             $folderName = $this->sanitizePathSegment($request->folder_name);
-            $pageType = $this->sanitizePathSegment($request->page_type);
-            $directory = trim($folderName . '/' . $pageType, '/');
+            $directory = trim($folderName);
 
             $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
             $safeOriginalName = Str::slug($originalName) ?: 'file';
