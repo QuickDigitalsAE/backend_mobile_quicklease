@@ -485,7 +485,7 @@ class BookingController extends Controller
                 $dropoff_time = $request->input('dropoff_time');
                 $promo_code = $request->input('promo_code');
                 $promo_type = $request->input('promo_type');
-                $selected_coverages_ids = $request->input('selected_coverages_ids');
+                $selected_coverages_ids = $request->input('selected_coverages_ids', []);
                 $coverages_locations = $request->input('coverages_locations');
                 $countable_values_qty = $request->input('countable_values_qty');
                 $button_status = $request->input('button_status');
@@ -620,6 +620,13 @@ class BookingController extends Controller
                                 
                     if($coverage_id == 21 && $ooh_status == 0){
                         return $translatedData;
+                    } elseif ($coverage_id == 21 && $ooh_status == 1) {
+
+                        // Add 21 if it doesn't already exist
+                        if (!in_array(21, $selected_coverages_ids)) {
+                            $selected_coverages_ids[] = 21;
+                        }
+
                     }
 
                     if(!empty($translation)){
