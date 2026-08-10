@@ -562,16 +562,41 @@ class BookingController extends Controller
                     $security_deposit_waiver_monthly = $product->security_deposit_waiver_monthly ?? 0;
                 }
 
-                // Set hide IDs
                 if ($daysCount <= 6) {    
-                    $hide_coverages_ids = [24,25,26,27,28];
+                    $hide_coverages_ids = [24,25,26,27,28,36];
+                    // if it doesn't already exist
+                    if (
+                        !empty($selected_coverages_ids) &&
+                        empty(array_intersect([32, 35], $selected_coverages_ids))
+                    ) {
+                        $selected_coverages_ids[] = 35;
+                    }
                 } elseif ($daysCount >= 7 && $daysCount < 30) {
-                    $hide_coverages_ids = [24,25,26,27,32];
+                    $hide_coverages_ids = [24,25,26,27,32,35];
+                    // if it doesn't already exist
+                    if (
+                        !empty($selected_coverages_ids) &&
+                        empty(array_intersect([28, 36], $selected_coverages_ids))
+                    ) {
+                        $selected_coverages_ids[] = 36;
+                    }
                 } elseif ($daysCount >= 30) {
-                    $hide_coverages_ids = [28,32];
+                    $hide_coverages_ids = [28,32,35,36];
+                    // if it doesn't already exist
+                    if (
+                        !empty($selected_coverages_ids) &&
+                        empty(array_intersect([24,25,26,27], $selected_coverages_ids))
+                    ) {
+                        $selected_coverages_ids[] = 24;
+                    }
                 } else {
                     $hide_coverages_ids = [];
                 }
+                
+                // Remove hidden coverage IDs from selected IDs
+                $selected_coverages_ids = array_values(
+                    array_diff($selected_coverages_ids, $hide_coverages_ids)
+                );
                 
                 $coveragesQuery = ProductCoverage::where('coverage_status', 1);
 
